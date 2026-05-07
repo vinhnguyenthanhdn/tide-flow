@@ -68,5 +68,10 @@
 
 ---
 
-## Bước 6: Deploy GitHub Pages ⏳
-**Cần:** Push lên GitHub repo, enable Pages → main / (root)
+## Bước 6: Deploy GitHub Pages ⏳ — CHỜ XÁC NHẬN
+**Blocker:** Push lên `main` bị chặn bởi safety rule — cần user cho phép.
+
+**Để hoàn thành:**
+1. Chạy: `git push -u origin main`
+2. Vào GitHub repo Settings → Pages → Source: Deploy from branch → main / (root)
+3. URL sẽ là: `https://vinhnguyenthanhdn.github.io/tide-flow/`

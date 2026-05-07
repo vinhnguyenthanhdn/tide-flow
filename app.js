@@ -71,6 +71,10 @@ function computeStats(data) {
   }
 }
 
+// Kept outside Alpine's reactive scope so Chart.js and Flatpickr proxies aren't wrapped
+let _chart = null
+let _fp = null
+
 function tideAppFactory() {
   return {
     locations: LOCATIONS,
@@ -82,8 +86,6 @@ function tideAppFactory() {
     chartReady: false,
     dateWarning: '',
     stats: { max: null, min: null, avg: null, range: null, maxTime: '', minTime: '' },
-    _chart: null,
-    _fp: null,
 
     get selectedLocation() {
       return this.locations.find(l => l.id === this.selectedLocationId)
@@ -106,7 +108,7 @@ function tideAppFactory() {
       this.endDate = addDays(today, 6)
       this.activePreset = 7
 
-      this._fp = flatpickr('#date-range-picker', {
+      _fp = flatpickr('#date-range-picker', {
         mode: 'range',
         dateFormat: 'd/m/Y',
         defaultDate: [this.startDate, this.endDate],
@@ -118,7 +120,7 @@ function tideAppFactory() {
             if (diff > MAX_DAYS) {
               this.dateWarning = `Tối đa ${MAX_DAYS} ngày`
               this.endDate = addDays(s, MAX_DAYS)
-              this._fp.setDate([s, this.endDate])
+              _fp.setDate([s, this.endDate])
               return
             }
             this.dateWarning = ''
@@ -135,7 +137,7 @@ function tideAppFactory() {
     },
 
     openDatePicker() {
-      this._fp && this._fp.open()
+      _fp && _fp.open()
     },
 
     setPreset(days) {
@@ -144,7 +146,7 @@ function tideAppFactory() {
       this.endDate = addDays(today, days - 1)
       this.activePreset = days
       this.dateWarning = ''
-      this._fp && this._fp.setDate([this.startDate, this.endDate])
+      _fp && _fp.setDate([this.startDate, this.endDate])
       this.fetchAndRender()
     },
 
@@ -158,7 +160,7 @@ function tideAppFactory() {
       gradient.addColorStop(0, 'rgba(14, 165, 233, 0.35)')
       gradient.addColorStop(1, 'rgba(14, 165, 233, 0.0)')
 
-      this._chart = new Chart(ctx, {
+      _chart = new Chart(ctx, {
         type: 'line',
         data: { labels: [], datasets: [{
           label: 'Mực nước (m)',
@@ -235,7 +237,7 @@ function tideAppFactory() {
     },
 
     async fetchAndRender() {
-      if (!this.startDate || !this.endDate || !this._chart) return
+      if (!this.startDate || !this.endDate || !_chart) return
       this.loading = true
       const loc = this.selectedLocation
       const s = toISODate(this.startDate)
@@ -244,10 +246,10 @@ function tideAppFactory() {
       try {
         const data = await loadTideData(loc.lat, loc.lon, s, e, loc.id)
         this.stats = computeStats(data)
-        this._chart.data.labels = data.map(d => d.time.toISOString())
-        this._chart.data.datasets[0].data = data.map(d => d.height)
-        if (this._chart.resetZoom) this._chart.resetZoom()
-        this._chart.update('active')
+        _chart.data.labels = data.map(d => d.time.toISOString())
+        _chart.data.datasets[0].data = data.map(d => d.height)
+        if (_chart.resetZoom) _chart.resetZoom()
+        _chart.update('active')
       } finally {
         this.loading = false
       }
