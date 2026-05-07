@@ -368,7 +368,7 @@ function tideAppFactory() {
         _chart.data.labels = data.map(d => d.time.toISOString())
         _chart.data.datasets[0].data = data.map(d => d.height)
         if (_chart.resetZoom) _chart.resetZoom()
-        _chart.update('active')
+        _chart.update('none')
       } finally {
         this.loading = false
       }
