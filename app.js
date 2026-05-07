@@ -302,12 +302,12 @@ function tideAppFactory() {
                 title: (items) => {
                   const d = new Date(items[0].label)
                   if (isNaN(d)) return items[0].label
-                  return `${THU[d.getUTCDay()]} ${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}  ${String(d.getUTCHours()).padStart(2,'0')}:00`
+                  return `${THU[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}  ${String(d.getHours()).padStart(2,'0')}:00`
                 },
                 afterTitle: (items) => {
                   const d = new Date(items[0].label)
                   if (isNaN(d)) return ''
-                  return lunarLabel(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+                  return lunarLabel(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
                 },
                 label: (item) => ` ${item.parsed.y.toFixed(2)} m`,
               },
@@ -326,13 +326,15 @@ function tideAppFactory() {
                 maxTicksLimit: 10,
                 callback(val) {
                   const label = this.getLabelForValue(val)
+                  // label is like "2024-05-08T17:00:00.000Z" (toISOString of a VN local midnight)
+                  // Parse as local time to get VN date/hour
                   const d = new Date(label)
                   if (isNaN(d)) return ''
-                  // Chỉ hiện label tại đầu mỗi ngày UTC (00:00 UTC)
-                  if (d.getUTCHours() === 0) {
-                    const thu = THU[d.getUTCDay()]
-                    const ngay = `${String(d.getUTCDate()).padStart(2,'0')}/${String(d.getUTCMonth()+1).padStart(2,'0')}`
-                    const { day: lunarDay, month: lunarMonth } = solarToLunar(new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
+                  const h = d.getHours()
+                  if (h === 0) {
+                    const thu = THU[d.getDay()]
+                    const ngay = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+                    const { day: lunarDay, month: lunarMonth } = solarToLunar(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
                     return [`${thu} ${ngay}`, `${lunarDay}/${lunarMonth} ÂL`]
                   }
                   return ''
