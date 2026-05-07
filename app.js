@@ -323,21 +323,20 @@ function tideAppFactory() {
                 color: '#64748B',
                 font: { family: 'Fira Code', size: 10 },
                 maxRotation: 0,
-                maxTicksLimit: 10,
+                autoSkip: false,
                 callback(val) {
                   const label = this.getLabelForValue(val)
-                  // label is like "2024-05-08T17:00:00.000Z" (toISOString of a VN local midnight)
-                  // Parse as local time to get VN date/hour
                   const d = new Date(label)
                   if (isNaN(d)) return ''
-                  const h = d.getHours()
-                  if (h === 0) {
-                    const thu = THU[d.getDay()]
-                    const ngay = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
-                    const { day: lunarDay, month: lunarMonth } = solarToLunar(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
-                    return [`${thu} ${ngay}`, `${lunarDay}/${lunarMonth} ÂL`]
-                  }
-                  return ''
+                  if (d.getHours() !== 0) return ''
+                  // On narrow screens (mobile) skip every other day for 30-day view
+                  const totalDays = Math.round(this.chart.data.labels.length / 24)
+                  const isMobile = this.chart.width < 500
+                  if (isMobile && totalDays > 10 && d.getDate() % 2 !== 0) return ''
+                  const thu = THU[d.getDay()]
+                  const ngay = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+                  const { day: lunarDay, month: lunarMonth } = solarToLunar(new Date(d.getFullYear(), d.getMonth(), d.getDate()))
+                  return [`${thu} ${ngay}`, `${lunarDay}/${lunarMonth} ÂL`]
                 },
               },
               grid: { color: '#1E293B' },
