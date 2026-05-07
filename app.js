@@ -6,7 +6,6 @@ import { TIDAL_CONSTITUENTS } from './src/tide-constituents.js'
 import { computeTideLevel, generateHourlyData, findLocalMaxima, findLocalMinima } from './src/tide-math.js'
 
 const MAX_DAYS = 30
-const MARINE_BASE = 'https://marine-api.open-meteo.com/v1/marine'
 
 const THU = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7']
 
@@ -133,34 +132,9 @@ function lunarLabel(date) {
   return `${day}/${month} ÂL`
 }
 
-function buildTideUrl(lat, lon, startDate, endDate) {
-  const p = new URLSearchParams({
-    latitude: lat, longitude: lon,
-    hourly: 'wave_height',
-    start_date: startDate, end_date: endDate,
-    timezone: 'Asia/Ho_Chi_Minh',
-  })
-  return `${MARINE_BASE}?${p}`
-}
-
-async function loadTideData(lat, lon, startDate, endDate, locationId) {
-  try {
-    const url = buildTideUrl(lat, lon, startDate, endDate)
-    const res = await fetch(url)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const json = await res.json()
-    const times = json.hourly.time
-    const heights = json.hourly.wave_height
-    const data = []
-    for (let i = 0; i < times.length; i++) {
-      if (heights[i] == null) continue
-      data.push({ time: new Date(times[i]), height: heights[i] })
-    }
-    return data
-  } catch {
-    const c = TIDAL_CONSTITUENTS[locationId]
-    return c ? generateHourlyData(c, startDate, endDate) : []
-  }
+function loadTideData(locationId, startDate, endDate) {
+  const c = TIDAL_CONSTITUENTS[locationId]
+  return c ? generateHourlyData(c, startDate, endDate) : []
 }
 
 function computeStats(data) {
@@ -357,23 +331,18 @@ function tideAppFactory() {
       this.chartReady = true
     },
 
-    async fetchAndRender() {
+    fetchAndRender() {
       if (!this.startDate || !this.endDate || !_chart) return
-      this.loading = true
       const loc = this.selectedLocation
       const s = toISODate(this.startDate)
       const e = toISODate(this.endDate)
 
-      try {
-        const data = await loadTideData(loc.lat, loc.lon, s, e, loc.id)
-        this.stats = computeStats(data)
-        _chart.data.labels = data.map(d => d.time.toISOString())
-        _chart.data.datasets[0].data = data.map(d => d.height)
-        if (_chart.resetZoom) _chart.resetZoom()
-        _chart.update('none')
-      } finally {
-        this.loading = false
-      }
+      const data = loadTideData(loc.id, s, e)
+      this.stats = computeStats(data)
+      _chart.data.labels = data.map(d => d.time.toISOString())
+      _chart.data.datasets[0].data = data.map(d => d.height)
+      if (_chart.resetZoom) _chart.resetZoom()
+      _chart.update('none')
     },
   }
 }
