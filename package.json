@@ -1,0 +1,20 @@
+{
+  "name": "tide-flow",
+  "version": "1.0.0",
+  "description": "Tide Flow VN — Biểu đồ thủy triều Việt Nam",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "serve": "npx serve . -p 3000 -s",
+    "test:e2e": "playwright test",
+    "test:all": "vitest run && playwright test"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0",
+    "jsdom": "^24.0.0",
+    "@vitest/coverage-v8": "^1.0.0",
+    "@playwright/test": "^1.40.0",
+    "serve": "^14.0.0"
+  }
+}

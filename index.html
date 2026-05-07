@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tide Flow VN — Biểu đồ thủy triều Việt Nam</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ocean: {
+              bg:        '#020817',
+              surface:   '#0F172A',
+              border:    '#1E293B',
+              primary:   '#1E40AF',
+              accent:    '#3B82F6',
+              highlight: '#0EA5E9',
+              cta:       '#F59E0B',
+            }
+          },
+          fontFamily: {
+            mono: ['Fira Code', 'monospace'],
+            sans: ['Fira Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Hammer.js + Chart.js Zoom Plugin -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+
+  <!-- Flatpickr JS -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <style>
+    body { background-color: #020817; font-family: 'Fira Sans', sans-serif; overflow-x: hidden; }
+    html { overflow-x: hidden; }
+    .glow-text { text-shadow: 0 0 20px rgba(14, 165, 233, 0.5); }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+    .flatpickr-calendar { background: #0F172A !important; border-color: #1E293B !important; }
+    .flatpickr-day { color: #F1F5F9 !important; }
+    .flatpickr-day.selected, .flatpickr-day.inRange { background: #1E40AF !important; border-color: #1E40AF !important; }
+    .flatpickr-day:hover { background: #1E293B !important; }
+    .flatpickr-month, .flatpickr-weekday { color: #94A3B8 !important; fill: #94A3B8 !important; }
+    .flatpickr-current-month { color: #F1F5F9 !important; }
+    .numInputWrapper span { border-color: #1E293B !important; }
+    .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #94A3B8 !important; }
+  </style>
+</head>
+<body class="min-h-screen text-slate-100" x-data="tideApp()" x-init="init()">
+
+  <!-- Header -->
+  <header class="border-b border-ocean-border px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-3">
+      <span class="font-mono text-ocean-highlight text-xl font-bold glow-text">[ ~ ]</span>
+      <div>
+        <h1 class="font-mono font-bold text-lg text-slate-100 leading-tight">Tide Flow VN</h1>
+        <p class="text-xs text-slate-500 font-sans">Biểu đồ thủy triều Việt Nam</p>
+      </div>
+    </div>
+
+    <!-- Location Selector -->
+    <select
+      x-model="selectedLocationId"
+      @change="onLocationChange()"
+      data-testid="location-selector"
+      class="bg-ocean-surface border border-ocean-border text-slate-100 font-mono text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-ocean-accent max-w-full"
+    >
+      <template x-for="loc in locations" :key="loc.id">
+        <option :value="loc.id" x-text="loc.name"></option>
+      </template>
+    </select>
+  </header>
+
+  <!-- Controls Bar -->
+  <div class="px-4 py-3 border-b border-ocean-border flex flex-wrap items-center gap-3">
+    <!-- Date Picker -->
+    <div class="relative">
+      <input
+        type="text"
+        id="date-range-picker"
+        data-testid="date-picker"
+        readonly
+        class="bg-ocean-surface border border-ocean-border text-slate-100 font-mono text-sm rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:border-ocean-accent w-56"
+        :value="dateRangeLabel"
+        @click="openDatePicker()"
+      />
+    </div>
+
+    <!-- Presets -->
+    <div class="flex gap-2">
+      <button
+        @click="setPreset(7)"
+        data-testid="preset-7d"
+        :class="activePreset === 7 ? 'bg-ocean-primary text-white' : 'bg-ocean-surface text-slate-400 hover:text-slate-100'"
+        class="font-mono text-xs px-3 py-2 rounded-lg border border-ocean-border transition-colors"
+      >7 ngày</button>
+      <button
+        @click="setPreset(30)"
+        data-testid="preset-30d"
+        :class="activePreset === 30 ? 'bg-ocean-primary text-white' : 'bg-ocean-surface text-slate-400 hover:text-slate-100'"
+        class="font-mono text-xs px-3 py-2 rounded-lg border border-ocean-border transition-colors"
+      >30 ngày</button>
+    </div>
+
+    <!-- Date warning -->
+    <span
+      x-show="dateWarning"
+      data-testid="date-warning"
+      class="text-amber-400 font-mono text-xs"
+      x-text="dateWarning"
+    ></span>
+  </div>
+
+  <!-- Main Content -->
+  <main class="p-4 space-y-4">
+
+    <!-- Chart Title -->
+    <div class="glass rounded-xl border border-ocean-border p-4">
+      <div class="flex items-center justify-between mb-3">
+        <h2
+          data-testid="chart-title"
+          class="font-mono text-sm text-slate-400"
+          x-text="chartTitle"
+        ></h2>
+        <!-- Loading indicator -->
+        <div
+          x-show="loading"
+          data-testid="loading-indicator"
+          class="flex items-center gap-2 text-ocean-accent"
+        >
+          <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <span class="font-mono text-xs">Đang tải...</span>
+        </div>
+      </div>
+
+      <!-- Chart Canvas -->
+      <div class="relative" style="height: 300px;">
+        <canvas id="tideChart"></canvas>
+        <!-- Skeleton while loading -->
+        <div
+          x-show="loading && !chartReady"
+          class="absolute inset-0 bg-ocean-surface rounded animate-pulse"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="glass rounded-xl border border-ocean-border p-3 text-center">
+        <p class="text-xs text-slate-500 font-sans mb-1">Đỉnh triều</p>
+        <p class="font-mono text-ocean-highlight text-lg font-bold" data-testid="stat-max"
+           x-text="stats.max !== null ? stats.max.toFixed(2) + ' m' : '—'"></p>
+        <p class="font-mono text-xs text-slate-500" x-text="stats.maxTime ? '@ ' + stats.maxTime : ''"></p>
+      </div>
+      <div class="glass rounded-xl border border-ocean-border p-3 text-center">
+        <p class="text-xs text-slate-500 font-sans mb-1">Chân triều</p>
+        <p class="font-mono text-amber-400 text-lg font-bold" data-testid="stat-min"
+           x-text="stats.min !== null ? stats.min.toFixed(2) + ' m' : '—'"></p>
+        <p class="font-mono text-xs text-slate-500" x-text="stats.minTime ? '@ ' + stats.minTime : ''"></p>
+      </div>
+      <div class="glass rounded-xl border border-ocean-border p-3 text-center">
+        <p class="text-xs text-slate-500 font-sans mb-1">Trung bình</p>
+        <p class="font-mono text-slate-300 text-lg font-bold"
+           x-text="stats.avg !== null ? stats.avg.toFixed(2) + ' m' : '—'"></p>
+      </div>
+      <div class="glass rounded-xl border border-ocean-border p-3 text-center">
+        <p class="text-xs text-slate-500 font-sans mb-1">Biên độ triều</p>
+        <p class="font-mono text-ocean-accent text-lg font-bold"
+           x-text="stats.range !== null ? stats.range.toFixed(2) + ' m' : '—'"></p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- App JS (module — sets window.tideApp before Alpine loads) -->
+  <script type="module" src="app.js"></script>
+
+  <!-- Alpine.js — loaded AFTER app.js module so window.tideApp is available -->
+  <script>
+    // Wait for app.js module to set window.tideApp, then start Alpine
+    document.addEventListener('DOMContentLoaded', () => {
+      const s = document.createElement('script')
+      s.src = 'https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js'
+      s.onload = () => Alpine.start()
+      document.head.appendChild(s)
+    })
+  </script>
+
+</body>
+</html>
