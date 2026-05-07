@@ -264,6 +264,7 @@ function tideAppFactory() {
     },
 
     initChart() {
+      if (_chart) { _chart.destroy(); _chart = null }
       const ctx = document.getElementById('tideChart').getContext('2d')
       const gradient = ctx.createLinearGradient(0, 0, 0, 300)
       gradient.addColorStop(0, 'rgba(14, 165, 233, 0.35)')
