@@ -1,5 +1,13 @@
 import { test, expect } from '@playwright/test'
 
+async function selectCustomRange(page, startLabel, endLabel) {
+  const picker = page.getByLabel('Choose a date range')
+  await picker.click()
+  await picker.evaluate(element => element._flatpickr.jumpToDate(new Date(2026, 0, 1)))
+  await page.locator(`.flatpickr-day[aria-label="${startLabel}"]:not(.prevMonthDay):not(.nextMonthDay)`).click()
+  await page.locator(`.flatpickr-day[aria-label="${endLabel}"]:not(.prevMonthDay):not(.nextMonthDay)`).click()
+}
+
 test.describe('Tide Chart App', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
@@ -73,6 +81,22 @@ test.describe('Tide Chart App', () => {
     await page.getByTestId('preset-30d').click()
     await expect(page.getByTestId('chart-title')).toContainText('30 days')
     await expect(page.getByTestId('stat-max').locator('..').locator('p').last()).toHaveText(/\d{2}\/\d{2} · \d{2}:\d{2}/)
+  })
+
+  test('accepts a 30-day inclusive custom range without warning', async ({ page }) => {
+    await selectCustomRange(page, 'January 1, 2026', 'January 30, 2026')
+
+    await expect(page.getByTestId('date-picker')).toHaveValue(/01\/01.*30\/01/)
+    await expect(page.getByTestId('chart-title')).toContainText('30 days')
+    await expect(page.getByTestId('date-warning')).toBeHidden()
+  })
+
+  test('caps a longer custom range and announces the warning', async ({ page }) => {
+    await selectCustomRange(page, 'January 1, 2026', 'January 31, 2026')
+
+    await expect(page.getByTestId('date-picker')).toHaveValue(/01\/01.*30\/01/)
+    await expect(page.getByTestId('chart-title')).toContainText('30 days')
+    await expect(page.getByRole('status')).toHaveText('Maximum range: 30 days')
   })
 
   test('GitHub contribution links are available', async ({ page }) => {
