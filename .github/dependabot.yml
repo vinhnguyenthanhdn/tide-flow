@@ -12,6 +12,15 @@ updates:
           - "jsdom"
           - "serve"
           - "vitest"
+    ignore:
+      # Tailwind CSS 4 changes the CLI and configuration model. Treat that as a
+      # deliberate migration instead of an automated dependency bump.
+      - dependency-name: "tailwindcss"
+        update-types: ["version-update:semver-major"]
+      # jsdom 30 drops Node 20 support, while this project intentionally keeps
+      # Node 20.19 as its minimum supported development runtime.
+      - dependency-name: "jsdom"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
