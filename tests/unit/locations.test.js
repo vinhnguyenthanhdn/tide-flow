@@ -27,7 +27,7 @@ describe('LOCATIONS', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  test('all locations have a non-empty Vietnamese name', () => {
+  test('all locations have a non-empty display name', () => {
     LOCATIONS.forEach(loc => {
       expect(loc.name).toBeTruthy()
       expect(loc.name.length).toBeGreaterThan(2)

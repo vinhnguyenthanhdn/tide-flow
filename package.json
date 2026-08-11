@@ -1,20 +1,45 @@
 {
   "name": "tide-flow",
   "version": "1.0.0",
-  "description": "Tide Flow VN — Biểu đồ thủy triều Việt Nam",
+  "private": true,
+  "description": "Open-source harmonic tide visualization for coastal Vietnam",
+  "license": "MIT",
+  "author": "Vinh Nguyen",
+  "homepage": "https://vinhnguyenthanhdn.github.io/tide-flow/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinhnguyenthanhdn/tide-flow.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vinhnguyenthanhdn/tide-flow/issues"
+  },
+  "keywords": [
+    "tide",
+    "tidal-constituents",
+    "harmonic-analysis",
+    "vietnam",
+    "data-visualization"
+  ],
   "type": "module",
   "scripts": {
+    "build": "npm run build:css",
+    "build:css": "tailwindcss -i ./src/input.css -o ./assets/tailwind.css --minify",
     "test": "vitest run",
     "test:watch": "vitest",
-    "serve": "npx serve . -p 3000 -s",
+    "test:coverage": "vitest run --coverage",
+    "serve": "serve . -p 3000 -s",
     "test:e2e": "playwright test",
-    "test:all": "vitest run && playwright test"
+    "test:all": "npm run build && npm test && npm run test:e2e"
+  },
+  "engines": {
+    "node": ">=20.19"
   },
   "devDependencies": {
-    "vitest": "^1.0.0",
-    "jsdom": "^24.0.0",
-    "@vitest/coverage-v8": "^1.0.0",
-    "@playwright/test": "^1.40.0",
-    "serve": "^14.0.0"
+    "@playwright/test": "^1.62.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "jsdom": "^29.1.1",
+    "serve": "^14.0.0",
+    "tailwindcss": "^3.4.19",
+    "vitest": "^4.1.10"
   }
 }

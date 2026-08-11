@@ -1,3 +1,6 @@
+// Approximate demonstration coefficients only. They are not calibrated to a
+// named gauge or vertical datum and must not be used for navigation or safety.
+// See docs/MODEL.md for the model boundary and contribution requirements.
 export const TIDAL_CONSTITUENTS = {
   "bai-rang": {
     Z0: 0.0,

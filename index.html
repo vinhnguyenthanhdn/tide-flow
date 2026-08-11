@@ -1,55 +1,34 @@
 <!DOCTYPE html>
-<html lang="vi" class="dark">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tide Flow VN — Biểu đồ thủy triều Việt Nam</title>
+  <meta name="description" content="Open-source harmonic tide visualization for 12 coastal locations in Vietnam." />
+  <meta name="theme-color" content="#020817" />
+  <meta property="og:title" content="Tide Flow VN" />
+  <meta property="og:description" content="Explore approximate tidal patterns across 12 coastal locations in Vietnam." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vinhnguyenthanhdn.github.io/tide-flow/" />
+  <link rel="canonical" href="https://vinhnguyenthanhdn.github.io/tide-flow/" />
+  <title>Tide Flow VN — Harmonic tide visualization</title>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Flatpickr -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
 
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            ocean: {
-              bg:        '#020817',
-              surface:   '#0F172A',
-              border:    '#1E293B',
-              primary:   '#1E40AF',
-              accent:    '#3B82F6',
-              highlight: '#0EA5E9',
-              cta:       '#F59E0B',
-            }
-          },
-          fontFamily: {
-            mono: ['Fira Code', 'monospace'],
-            sans: ['Fira Sans', 'sans-serif'],
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="assets/tailwind.css" />
 
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 
   <!-- Hammer.js + Chart.js Zoom Plugin -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
   <!-- Flatpickr JS -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 
   <style>
     body { background-color: #020817; font-family: 'Fira Sans', sans-serif; overflow-x: hidden; }
@@ -64,130 +43,149 @@
     .flatpickr-current-month { color: #F1F5F9 !important; }
     .numInputWrapper span { border-color: #1E293B !important; }
     .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #94A3B8 !important; }
+    .chart-scroll { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-color: #334155 #0F172A; }
+    .chart-stage { height: 320px; min-width: 100%; }
+    @media (max-width: 639px) {
+      .chart-stage { width: var(--chart-mobile-width); }
+    }
   </style>
 </head>
 <body class="min-h-screen text-slate-100" x-data="tideApp()" x-init="init()">
 
+  <noscript>
+    <p class="bg-amber-950 px-4 py-3 text-center text-sm text-amber-200">Tide Flow VN requires JavaScript to draw the chart.</p>
+  </noscript>
+
   <!-- Header -->
-  <header class="border-b border-ocean-border px-4 py-3 flex flex-wrap items-center justify-between gap-2">
-    <div class="flex items-center gap-3">
-      <span class="font-mono text-ocean-highlight text-xl font-bold glow-text">[ ~ ]</span>
-      <div>
-        <h1 class="font-mono font-bold text-lg text-slate-100 leading-tight">Tide Flow VN</h1>
-        <p class="text-xs text-slate-500 font-sans">Biểu đồ thủy triều Việt Nam</p>
+  <header class="border-b border-ocean-border">
+    <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-3 px-4 py-3">
+      <a class="flex items-center gap-3" href="./" aria-label="Tide Flow VN home">
+        <span class="font-mono text-ocean-highlight text-xl font-bold glow-text">[ ~ ]</span>
+        <div>
+          <h1 class="font-mono font-bold text-lg text-slate-100 leading-tight">Tide Flow VN</h1>
+          <p class="text-xs text-slate-400 font-sans">Harmonic tide visualization</p>
+        </div>
+      </a>
+
+      <div class="flex max-w-full items-center gap-2">
+        <a
+          href="https://github.com/vinhnguyenthanhdn/tide-flow"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hidden sm:inline-flex bg-ocean-surface border border-ocean-border text-slate-300 hover:text-white font-mono text-xs rounded-lg px-3 py-2 transition-colors"
+        >Star on GitHub</a>
+        <!-- Location Selector -->
+        <select
+          x-model="selectedLocationId"
+          @change="onLocationChange()"
+          data-testid="location-selector"
+          aria-label="Choose a location"
+          class="max-w-full rounded-lg border border-ocean-border bg-ocean-surface px-3 py-2 font-mono text-sm text-slate-100 focus:border-ocean-accent focus:outline-none"
+        >
+          <template x-for="loc in locations" :key="loc.id">
+            <option :value="loc.id" x-text="loc.name"></option>
+          </template>
+        </select>
       </div>
     </div>
-
-    <!-- Location Selector -->
-    <select
-      x-model="selectedLocationId"
-      @change="onLocationChange()"
-      data-testid="location-selector"
-      class="bg-ocean-surface border border-ocean-border text-slate-100 font-mono text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-ocean-accent max-w-full"
-    >
-      <template x-for="loc in locations" :key="loc.id">
-        <option :value="loc.id" x-text="loc.name"></option>
-      </template>
-    </select>
   </header>
 
   <!-- Controls Bar -->
-  <div class="px-4 py-3 border-b border-ocean-border flex flex-wrap items-center gap-3">
-    <!-- Date Picker -->
-    <div class="relative">
-      <input
-        type="text"
-        id="date-range-picker"
-        data-testid="date-picker"
-        readonly
-        class="bg-ocean-surface border border-ocean-border text-slate-100 font-mono text-sm rounded-lg px-3 py-2 cursor-pointer focus:outline-none focus:border-ocean-accent w-64"
-        :value="dateRangeLabel"
-        @click="openDatePicker()"
-      />
-    </div>
+  <div class="border-b border-ocean-border">
+    <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center gap-3 px-4 py-3">
+      <!-- Date Picker -->
+      <div class="relative w-full sm:w-auto">
+        <input
+          type="text"
+          id="date-range-picker"
+          data-testid="date-picker"
+          aria-label="Choose a date range"
+          readonly
+          class="w-full cursor-pointer rounded-lg border border-ocean-border bg-ocean-surface px-3 py-2 font-mono text-sm text-slate-100 focus:border-ocean-accent focus:outline-none sm:w-64"
+          :value="dateRangeLabel"
+          @click="openDatePicker()"
+        />
+      </div>
 
-    <!-- Presets -->
-    <div class="flex gap-2">
-      <button
-        @click="setPreset(7)"
-        data-testid="preset-7d"
-        :class="activePreset === 7 ? 'bg-ocean-primary text-white' : 'bg-ocean-surface text-slate-400 hover:text-slate-100'"
-        class="font-mono text-xs px-3 py-2 rounded-lg border border-ocean-border transition-colors"
-      >7 ngày</button>
-      <button
-        @click="setPreset(30)"
-        data-testid="preset-30d"
-        :class="activePreset === 30 ? 'bg-ocean-primary text-white' : 'bg-ocean-surface text-slate-400 hover:text-slate-100'"
-        class="font-mono text-xs px-3 py-2 rounded-lg border border-ocean-border transition-colors"
-      >30 ngày</button>
-    </div>
+      <!-- Presets -->
+      <div class="flex gap-2" role="group" aria-label="Date-range presets">
+        <button
+          @click="setPreset(7)"
+          data-testid="preset-7d"
+          :aria-pressed="activePreset === 7"
+          :class="activePreset === 7 ? 'bg-ocean-primary text-white' : 'bg-ocean-surface text-slate-300 hover:text-white'"
+          class="font-mono text-xs px-3 py-2 rounded-lg border border-ocean-border transition-colors"
+        >7 days</button>
+        <button
+          @click="setPreset(30)"
+          data-testid="preset-30d"
+          :aria-pressed="activePreset === 30"
+          :class="activePreset === 30 ? 'bg-ocean-primary text-white' : 'bg-ocean-surface text-slate-300 hover:text-white'"
+          class="font-mono text-xs px-3 py-2 rounded-lg border border-ocean-border transition-colors"
+        >30 days</button>
+      </div>
 
-    <!-- Date warning -->
-    <span
-      x-show="dateWarning"
-      data-testid="date-warning"
-      class="text-amber-400 font-mono text-xs"
-      x-text="dateWarning"
-    ></span>
+      <!-- Date warning -->
+      <span
+        x-show="dateWarning"
+        data-testid="date-warning"
+        role="status"
+        class="text-amber-300 font-mono text-xs"
+        x-text="dateWarning"
+      ></span>
+    </div>
   </div>
 
   <!-- Main Content -->
-  <main class="p-4 space-y-4">
+  <main class="mx-auto max-w-screen-2xl space-y-4 p-4">
+
+    <aside class="rounded-xl border border-amber-800/70 bg-amber-950/40 px-4 py-3 text-sm text-amber-100" data-testid="model-warning">
+      <strong class="font-semibold">Educational model:</strong>
+      values use approximate, uncalibrated coefficients. Never use them for navigation or safety decisions.
+      <a class="font-medium text-amber-300 underline decoration-amber-500/60 underline-offset-2 hover:text-amber-200" href="https://github.com/vinhnguyenthanhdn/tide-flow/blob/main/docs/MODEL.md" target="_blank" rel="noopener noreferrer">Read the limitations.</a>
+    </aside>
 
     <!-- Chart Title -->
     <div class="glass rounded-xl border border-ocean-border p-4">
-      <div class="flex items-center justify-between mb-3">
+      <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2
           data-testid="chart-title"
-          class="font-mono text-sm text-slate-400"
+          class="font-mono text-sm text-slate-300"
           x-text="chartTitle"
         ></h2>
-        <!-- Loading indicator -->
-        <div
-          x-show="loading"
-          data-testid="loading-indicator"
-          class="flex items-center gap-2 text-ocean-accent"
-        >
-          <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-          </svg>
-          <span class="font-mono text-xs">Đang tải...</span>
-        </div>
+        <p class="font-sans text-xs text-slate-400 sm:hidden">Swipe horizontally to explore</p>
       </div>
 
       <!-- Chart Canvas -->
-      <div class="relative" style="height: 300px;">
-        <canvas id="tideChart"></canvas>
-        <!-- Skeleton while loading -->
-        <div
-          x-show="loading && !chartReady"
-          class="absolute inset-0 bg-ocean-surface rounded animate-pulse"
-        ></div>
+      <div class="chart-scroll rounded-lg" role="region" tabindex="0" aria-label="Scrollable tide chart">
+        <div class="chart-stage relative" :style="`--chart-mobile-width: ${chartMinWidth}px`">
+          <canvas id="tideChart" role="img" aria-label="Approximate hourly tide chart" aria-describedby="chart-description"></canvas>
+        </div>
       </div>
+      <p id="chart-description" class="sr-only">An hourly harmonic tide curve for the selected location and date range. Values are approximate relative levels in metres.</p>
     </div>
 
     <!-- Stats Bar -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
       <div class="glass rounded-xl border border-ocean-border p-3 text-center">
-        <p class="text-xs text-slate-500 font-sans mb-1">Đỉnh triều</p>
+        <p class="text-xs text-slate-400 font-sans mb-1">Highest level</p>
         <p class="font-mono text-ocean-highlight text-lg font-bold" data-testid="stat-max"
            x-text="stats.max !== null ? stats.max.toFixed(2) + ' m' : '—'"></p>
-        <p class="font-mono text-xs text-slate-500" x-text="stats.maxTime ? '@ ' + stats.maxTime : ''"></p>
+        <p class="font-mono text-xs text-slate-400" x-text="stats.maxTime || ''"></p>
       </div>
       <div class="glass rounded-xl border border-ocean-border p-3 text-center">
-        <p class="text-xs text-slate-500 font-sans mb-1">Chân triều</p>
+        <p class="text-xs text-slate-400 font-sans mb-1">Lowest level</p>
         <p class="font-mono text-amber-400 text-lg font-bold" data-testid="stat-min"
            x-text="stats.min !== null ? stats.min.toFixed(2) + ' m' : '—'"></p>
-        <p class="font-mono text-xs text-slate-500" x-text="stats.minTime ? '@ ' + stats.minTime : ''"></p>
+        <p class="font-mono text-xs text-slate-400" x-text="stats.minTime || ''"></p>
       </div>
       <div class="glass rounded-xl border border-ocean-border p-3 text-center">
-        <p class="text-xs text-slate-500 font-sans mb-1">Trung bình</p>
+        <p class="text-xs text-slate-400 font-sans mb-1">Average</p>
         <p class="font-mono text-slate-300 text-lg font-bold"
            x-text="stats.avg !== null ? stats.avg.toFixed(2) + ' m' : '—'"></p>
       </div>
       <div class="glass rounded-xl border border-ocean-border p-3 text-center">
-        <p class="text-xs text-slate-500 font-sans mb-1">Biên độ triều</p>
+        <p class="text-xs text-slate-400 font-sans mb-1">Range</p>
         <p class="font-mono text-ocean-accent text-lg font-bold"
            x-text="stats.range !== null ? stats.range.toFixed(2) + ' m' : '—'"></p>
       </div>
@@ -195,16 +193,26 @@
 
   </main>
 
+  <footer class="border-t border-ocean-border px-4 py-4 text-center text-xs text-slate-400">
+    <p>
+      Educational visualization using approximate harmonic coefficients. Do not use it for navigation, rescue, or safety decisions.
+      <a class="text-ocean-highlight underline underline-offset-2" href="https://github.com/vinhnguyenthanhdn/tide-flow#model-and-limitations" target="_blank" rel="noopener noreferrer">Method and limitations</a>
+    </p>
+    <p class="mt-2">
+      Open source under MIT.
+      <a class="text-ocean-highlight underline underline-offset-2" href="https://github.com/vinhnguyenthanhdn/tide-flow" target="_blank" rel="noopener noreferrer">Contribute or leave a star</a>
+      if this is useful.
+    </p>
+  </footer>
+
   <!-- App JS (module — sets window.tideApp before Alpine loads) -->
   <script type="module" src="app.js"></script>
 
-  <!-- Alpine.js — loaded AFTER app.js module so window.tideApp is available -->
+  <!-- Alpine.js — loaded after app.js has registered the component. -->
   <script>
-    // Wait for app.js module to set window.tideApp, then start Alpine
     document.addEventListener('DOMContentLoaded', () => {
       const s = document.createElement('script')
-      s.src = 'https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js'
-      s.onload = () => Alpine.start()
+      s.src = 'https://unpkg.com/alpinejs@3.15.12/dist/cdn.min.js'
       document.head.appendChild(s)
     })
   </script>

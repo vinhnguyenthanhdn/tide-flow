@@ -1,0 +1,36 @@
+name: Bug report
+description: Report a reproducible software, display, or calculation problem.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Tide Flow VN. For model accuracy reports, include the comparison source and datum.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the actual and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Give the location, date range, browser, and exact steps.
+      placeholder: |
+        1. Select ...
+        2. Choose ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Add a screenshot, console error, failing test, or public comparison source.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Commit SHA or live-demo date, if known.

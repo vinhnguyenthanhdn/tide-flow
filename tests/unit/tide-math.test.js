@@ -5,6 +5,8 @@ import {
   computeTideLevel,
   hoursFromEpoch,
   computeHighTideTimes,
+  generateHourlyData,
+  toLocalISODate,
 } from '../../src/tide-math.js'
 
 const DA_NANG_CONSTITUENTS = {
@@ -65,8 +67,22 @@ describe('hoursFromEpoch', () => {
   })
 })
 
+describe('date handling', () => {
+  test('formats the local calendar date without a UTC day shift', () => {
+    const localMidnight = new Date(2026, 4, 7, 0, 0, 0)
+    expect(toLocalISODate(localMidnight)).toBe('2026-05-07')
+  })
+
+  test('generates complete Vietnam-local days at hourly resolution', () => {
+    const data = generateHourlyData(DA_NANG_CONSTITUENTS, '2026-05-01', '2026-05-03')
+    expect(data).toHaveLength(72)
+    expect(data[0].time.toISOString()).toBe('2026-04-30T17:00:00.000Z')
+    expect(data.at(-1).time.toISOString()).toBe('2026-05-03T16:00:00.000Z')
+  })
+})
+
 describe('semi-diurnal pattern', () => {
-  test('Đà Nẵng produces ~2 peaks per day', () => {
+  test('Da Nang produces about two peaks per day', () => {
     const hours = Array.from({ length: 24 }, (_, i) => {
       const d = new Date('2026-05-01T00:00:00Z')
       d.setUTCHours(i)

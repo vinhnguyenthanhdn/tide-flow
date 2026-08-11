@@ -14,6 +14,15 @@ export function hoursFromEpoch(date) {
   return (date.getTime() - T0) / 3_600_000
 }
 
+// Format a Date using its local calendar day instead of UTC. Date pickers return
+// local-midnight values, where toISOString() can otherwise shift the day back.
+export function toLocalISODate(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 // Compute tidal height at a given Date using harmonic constituents
 export function computeTideLevel(constituents, date) {
   const t = hoursFromEpoch(date)
@@ -30,15 +39,13 @@ export function computeTideLevel(constituents, date) {
 // Generate hourly tide data for a date range
 export function generateHourlyData(constituents, startDate, endDate) {
   const result = []
-  const start = new Date(startDate)
-  start.setUTCHours(0, 0, 0, 0)
-  const end = new Date(endDate)
-  end.setUTCHours(23, 0, 0, 0)
+  const start = new Date(`${startDate}T00:00:00+07:00`)
+  const end = new Date(`${endDate}T23:00:00+07:00`)
 
   const cur = new Date(start)
   while (cur <= end) {
     result.push({ time: new Date(cur), height: computeTideLevel(constituents, cur) })
-    cur.setUTCHours(cur.getUTCHours() + 1)
+    cur.setTime(cur.getTime() + 3_600_000)
   }
   return result
 }
@@ -81,9 +88,7 @@ export function computeHighTideTimes(constituents, dateStr) {
   })
   const peakIndices = findLocalMaxima(hours, { minProminence: 0.05 })
   return peakIndices.map(i => {
-    // Refine with half-hour resolution
-    const before = new Date(date); before.setUTCHours(i); before.setUTCMinutes(0)
-    const after = new Date(date); after.setUTCHours(i); after.setUTCMinutes(59)
+    // Refine the hourly peak with one-minute resolution.
     let best = i, bestH = hours[i]
     for (let m = 0; m <= 59; m++) {
       const d = new Date(date); d.setUTCHours(i); d.setUTCMinutes(m)

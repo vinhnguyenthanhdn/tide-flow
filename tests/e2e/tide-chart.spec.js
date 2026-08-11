@@ -2,14 +2,15 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Tide Chart App', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3000')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
   })
 
   test('page loads with chart visible', async ({ page }) => {
     await expect(page.locator('canvas')).toBeVisible()
-    await expect(page.locator('[data-testid="location-selector"]')).toBeVisible()
-    await expect(page.locator('[data-testid="date-picker"]')).toBeVisible()
+    await expect(page.getByLabel('Choose a location')).toBeVisible()
+    await expect(page.getByLabel('Choose a date range')).toBeVisible()
+    await expect(page.getByTestId('model-warning')).toContainText('Never use them for navigation')
   })
 
   test('Bai Rang is in location list', async ({ page }) => {
@@ -23,7 +24,7 @@ test.describe('Tide Chart App', () => {
   })
 
   test('7-day preset button exists and is active by default', async ({ page }) => {
-    await expect(page.locator('[data-testid="preset-7d"]')).toBeVisible()
+    await expect(page.getByTestId('preset-7d')).toHaveAttribute('aria-pressed', 'true')
   })
 
   test('stats bar shows max tide after load', async ({ page }) => {
@@ -43,19 +44,37 @@ test.describe('Tide Chart App', () => {
   test('layout works on mobile 375px', async ({ page }) => {
     // Set viewport before navigation so chart initializes at mobile size
     await page.setViewportSize({ width: 375, height: 812 })
-    await page.goto('http://localhost:3000')
+    await page.goto('/')
     await page.waitForLoadState('networkidle')
     await expect(page.locator('canvas')).toBeVisible()
-    // Chart canvas should be responsive to viewport width
-    const canvasWidth = await page.evaluate(() => document.querySelector('canvas').offsetWidth)
-    expect(canvasWidth).toBeLessThanOrEqual(380)
+    await expect(page.getByText('Swipe horizontally to explore')).toBeVisible()
+
+    const chart = page.locator('.chart-scroll')
+    const dimensions = await chart.evaluate(element => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    }))
+    expect(dimensions.scrollWidth).toBeGreaterThan(dimensions.clientWidth)
+
+    await page.getByLabel('Choose a date range').click()
+    await expect(page.locator('.flatpickr-month')).toHaveCount(1)
   })
 
   test('changing location updates chart title', async ({ page }) => {
     await page.waitForSelector('[data-testid="chart-title"]')
     await page.selectOption('[data-testid="location-selector"]', 'vung-tau')
-    await page.waitForTimeout(500)
     const title = await page.locator('[data-testid="chart-title"]').textContent()
     expect(title).toContain('Vũng Tàu')
+  })
+
+  test('30-day preset shows a complete date on peak summaries', async ({ page }) => {
+    await page.getByTestId('preset-30d').click()
+    await expect(page.getByTestId('chart-title')).toContainText('30 days')
+    await expect(page.getByTestId('stat-max').locator('..').locator('p').last()).toHaveText(/\d{2}\/\d{2} · \d{2}:\d{2}/)
+  })
+
+  test('GitHub contribution links are available', async ({ page }) => {
+    const links = page.getByRole('link', { name: /Star on GitHub|Contribute or leave a star/ })
+    await expect(links.first()).toHaveAttribute('href', 'https://github.com/vinhnguyenthanhdn/tide-flow')
   })
 })
