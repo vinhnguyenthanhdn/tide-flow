@@ -75,6 +75,7 @@ function tideAppFactory() {
     endDate: null,
     activePreset: 7,
     dateWarning: '',
+    isChartZoomed: false,
     stats: { max: null, min: null, avg: null, range: null, maxTime: '', minTime: '' },
 
     get selectedLocation() {
@@ -157,6 +158,10 @@ function tideAppFactory() {
       this.fetchAndRender()
     },
 
+    resetChartZoom() {
+      if (_chart?.resetZoom) _chart.resetZoom()
+    },
+
     initChart() {
       if (_chart) { _chart.destroy(); _chart = null }
       const ctx = document.getElementById('tideChart').getContext('2d')
@@ -204,8 +209,17 @@ function tideAppFactory() {
               },
             },
             zoom: {
-              zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' },
-              pan: { enabled: true, mode: 'x' },
+              zoom: {
+                wheel: { enabled: true },
+                pinch: { enabled: true },
+                mode: 'x',
+                onZoomComplete: ({ chart }) => { app.isChartZoomed = chart.isZoomedOrPanned() },
+              },
+              pan: {
+                enabled: true,
+                mode: 'x',
+                onPanComplete: ({ chart }) => { app.isChartZoomed = chart.isZoomedOrPanned() },
+              },
             },
           },
           scales: {

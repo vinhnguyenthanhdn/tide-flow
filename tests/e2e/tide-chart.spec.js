@@ -70,6 +70,30 @@ test.describe('Tide Chart App', () => {
     await expect(page.locator('.flatpickr-month')).toHaveCount(1)
   })
 
+  test('resets chart zoom with an accessible keyboard control', async ({ page }) => {
+    const chart = page.getByRole('img', { name: 'Approximate hourly tide chart' })
+    const chartRegion = page.getByRole('region', { name: 'Scrollable tide chart' })
+    const resetZoom = page.getByRole('button', { name: 'Reset zoom' })
+
+    await expect(resetZoom).toBeHidden()
+    await chart.hover()
+    await page.mouse.wheel(0, -400)
+    await expect.poll(() => chart.evaluate(canvas => Chart.getChart(canvas).isZoomedOrPanned())).toBe(true)
+    await expect(resetZoom).toBeVisible()
+
+    await chartRegion.focus()
+    await page.keyboard.press('Shift+Tab')
+    await expect(resetZoom).toBeFocused()
+    await expect.poll(() => resetZoom.evaluate(button => {
+      const style = getComputedStyle(button)
+      return [style.outlineStyle, style.outlineWidth, style.outlineOffset]
+    })).toEqual(['solid', '2px', '2px'])
+    await page.keyboard.press('Enter')
+
+    await expect.poll(() => chart.evaluate(canvas => Chart.getChart(canvas).isZoomedOrPanned())).toBe(false)
+    await expect(resetZoom).toBeHidden()
+  })
+
   test('changing location updates chart title', async ({ page }) => {
     await page.waitForSelector('[data-testid="chart-title"]')
     await page.selectOption('[data-testid="location-selector"]', 'new-york-harbor')
