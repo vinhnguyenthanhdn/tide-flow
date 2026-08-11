@@ -25,7 +25,7 @@ The repository is intentionally lightweight so that contributors can understand 
 - Seven-day, 30-day, and custom date ranges.
 - Hourly harmonic curve with high, low, average, and range statistics.
 - Zoom, pan, a horizontally explorable mobile chart, and an English UI.
-- No account, analytics, backend, or runtime tide API.
+- No account, analytics, backend, runtime tide API, or third-party runtime CDN.
 - Unit tests for the model and date handling; Playwright tests for the UI.
 
 ## Quick start
@@ -66,6 +66,8 @@ h(t) = Z0 + Σ Aᵢ cos(ωᵢt − φᵢ)
 
 The current set uses M2, S2, N2, K1, and O1. The browser computes one value per hour and never sends a location or date range to a server. See [Model and data notes](docs/MODEL.md) for the assumptions and the work required before these curves can be called predictions.
 
+The current coordinates and coefficients have undocumented provenance. See [Data provenance](docs/DATA_PROVENANCE.md) before reusing or replacing them.
+
 ## Model and limitations
 
 The honest boundary of the project is important:
@@ -82,9 +84,9 @@ A high-value contribution would replace one location's approximate coefficients 
 
 ```text
 .
-├── index.html                 # static UI and external browser dependencies
+├── index.html                 # static UI
 ├── app.js                     # Alpine component and Chart.js rendering
-├── assets/tailwind.css        # generated, production-ready styles
+├── assets/                    # generated styles and vendored runtime packages
 ├── src/
 │   ├── locations.js          # supported locations and coordinates
 │   ├── tide-constituents.js  # approximate coefficients
@@ -92,10 +94,12 @@ A high-value contribution would replace one location's approximate coefficients 
 ├── tests/
 │   ├── unit/                 # Vitest
 │   └── e2e/                  # Playwright
-└── docs/MODEL.md             # model assumptions and validation path
+└── docs/
+    ├── MODEL.md              # model assumptions and validation path
+    └── DATA_PROVENANCE.md    # provenance status and data standard
 ```
 
-When changing classes in `index.html` or `app.js`, run `npm run build` and commit the regenerated stylesheet.
+Runtime packages are declared in `package.json`, audited by npm, and copied into `assets/vendor` during the build. When changing dependencies or classes in `index.html` or `app.js`, run `npm run build` and commit the regenerated assets.
 
 ## Contributing
 
@@ -108,6 +112,8 @@ Contributions are welcome, especially:
 - tests that expose a real model or timezone error.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. For model changes, include the source, station/datum metadata, transformation steps, and an error comparison against held-out observations.
+
+New contributors can start with the curated [`good first issue`](https://github.com/vinhnguyenthanhdn/tide-flow/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) list. Larger research and calibration tasks use the [`help wanted`](https://github.com/vinhnguyenthanhdn/tide-flow/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22help%20wanted%22) label.
 
 ## Roadmap
 
@@ -125,4 +131,4 @@ The most valuable support is still evidence: open an issue with a public tide-ga
 
 ## License
 
-[MIT](LICENSE) © Vinh Nguyen.
+[MIT](LICENSE) © Vinh Nguyen. Vendored browser packages retain their original licenses; see [Third-party notices](THIRD_PARTY_NOTICES.md).

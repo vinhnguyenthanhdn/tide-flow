@@ -4,6 +4,7 @@
 import { LOCATIONS } from './src/locations.js'
 import { TIDAL_CONSTITUENTS } from './src/tide-constituents.js'
 import { generateHourlyData, toLocalISODate } from './src/tide-math.js'
+import Alpine from './assets/vendor/alpine.esm.min.js'
 
 const MAX_DAYS = 30
 
@@ -240,3 +241,5 @@ function tideAppFactory() {
 
 // Expose as global so Alpine x-data="tideApp()" can find it
 window.tideApp = tideAppFactory
+window.Alpine = Alpine
+Alpine.start()

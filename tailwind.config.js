@@ -16,8 +16,8 @@ export default {
         },
       },
       fontFamily: {
-        mono: ['Fira Code', 'monospace'],
-        sans: ['Fira Sans', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
     },
   },

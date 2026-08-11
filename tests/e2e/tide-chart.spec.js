@@ -77,4 +77,21 @@ test.describe('Tide Chart App', () => {
     const links = page.getByRole('link', { name: /Star on GitHub|Contribute or leave a star/ })
     await expect(links.first()).toHaveAttribute('href', 'https://github.com/vinhnguyenthanhdn/tide-flow')
   })
+
+  test('runtime assets load only from the application origin', async ({ page }) => {
+    const externalOrigins = new Set()
+    page.on('request', request => {
+      const url = new URL(request.url())
+      if (url.origin !== 'http://127.0.0.1:3000') externalOrigins.add(url.origin)
+    })
+
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+    expect([...externalOrigins]).toEqual([])
+  })
+
+  test('social sharing metadata includes a large preview image', async ({ page }) => {
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-preview\.png$/)
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image')
+  })
 })

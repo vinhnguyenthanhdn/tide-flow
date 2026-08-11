@@ -18,6 +18,8 @@ This is enough to demonstrate harmonic composition, mixed versus semi-diurnal sh
 
 The values in `src/tide-constituents.js` are approximate demo coefficients. The repository does not currently contain the station metadata, datum, raw observations, astronomical argument convention, calibration code, or validation report needed to trace them to an authoritative source.
 
+The same provenance limitation applies to the coordinates in `src/locations.js`. See [Data provenance](DATA_PROVENANCE.md) for the current status and the evidence required in a replacement.
+
 They must therefore not be described as verified IHO, IOC, UHSLC, hydrographic-office, or gauge coefficients.
 
 ## Missing physical and statistical effects

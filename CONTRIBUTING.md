@@ -8,6 +8,7 @@ Thank you for helping make this project more useful and more honest. Small, focu
 - Open an issue first for a new feature, a new dependency, or a model/data change.
 - Do not describe approximate coefficients as official or verified without a reproducible source and validation.
 - Never include private, licensed, or scraped data that cannot be redistributed.
+- Read [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md) before changing locations or coefficients.
 
 ## Development setup
 
@@ -24,7 +25,7 @@ Run the app with `npm run serve`, then open <http://localhost:3000>.
 
 ## Choosing a contribution
 
-Issues labeled `good first issue` should be self-contained. Model and calibration work is intentionally held to a higher evidence standard; see [docs/MODEL.md](docs/MODEL.md).
+[Issues labeled `good first issue`](https://github.com/vinhnguyenthanhdn/tide-flow/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) should be self-contained. Model and calibration work is intentionally held to a higher evidence standard; see [docs/MODEL.md](docs/MODEL.md).
 
 Useful contributions include:
 

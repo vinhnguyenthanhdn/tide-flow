@@ -3,6 +3,7 @@ coverage/
 playwright-report/
 test-results/
 dogfood-output/
+_site/
 .playwright/
 .mcp.json
 .claude/settings.local.json

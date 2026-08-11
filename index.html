@@ -5,50 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Open-source harmonic tide visualization for 12 coastal locations in Vietnam." />
   <meta name="theme-color" content="#020817" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <meta property="og:title" content="Tide Flow VN" />
   <meta property="og:description" content="Explore approximate tidal patterns across 12 coastal locations in Vietnam." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vinhnguyenthanhdn.github.io/tide-flow/" />
+  <meta property="og:image" content="https://vinhnguyenthanhdn.github.io/tide-flow/docs/assets/social-preview.png" />
+  <meta property="og:image:width" content="1280" />
+  <meta property="og:image:height" content="640" />
+  <meta property="og:image:alt" content="Tide Flow VN harmonic tide chart" />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://vinhnguyenthanhdn.github.io/tide-flow/" />
   <title>Tide Flow VN — Harmonic tide visualization</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
   <!-- Flatpickr -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
+  <link rel="stylesheet" href="assets/vendor/flatpickr.min.css" />
 
   <link rel="stylesheet" href="assets/tailwind.css" />
 
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="assets/vendor/chart.umd.min.js"></script>
 
   <!-- Hammer.js + Chart.js Zoom Plugin -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+  <script src="assets/vendor/hammer.min.js"></script>
+  <script src="assets/vendor/chartjs-plugin-zoom.min.js"></script>
 
   <!-- Flatpickr JS -->
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-
-  <style>
-    body { background-color: #020817; font-family: 'Fira Sans', sans-serif; overflow-x: hidden; }
-    html { overflow-x: hidden; }
-    .glow-text { text-shadow: 0 0 20px rgba(14, 165, 233, 0.5); }
-    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-    .flatpickr-calendar { background: #0F172A !important; border-color: #1E293B !important; }
-    .flatpickr-day { color: #F1F5F9 !important; }
-    .flatpickr-day.selected, .flatpickr-day.inRange { background: #1E40AF !important; border-color: #1E40AF !important; }
-    .flatpickr-day:hover { background: #1E293B !important; }
-    .flatpickr-month, .flatpickr-weekday { color: #94A3B8 !important; fill: #94A3B8 !important; }
-    .flatpickr-current-month { color: #F1F5F9 !important; }
-    .numInputWrapper span { border-color: #1E293B !important; }
-    .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: #94A3B8 !important; }
-    .chart-scroll { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-color: #334155 #0F172A; }
-    .chart-stage { height: 320px; min-width: 100%; }
-    @media (max-width: 639px) {
-      .chart-stage { width: var(--chart-mobile-width); }
-    }
-  </style>
+  <script src="assets/vendor/flatpickr.min.js"></script>
 </head>
 <body class="min-h-screen text-slate-100" x-data="tideApp()" x-init="init()">
 
@@ -202,20 +185,12 @@
       Open source under MIT.
       <a class="text-ocean-highlight underline underline-offset-2" href="https://github.com/vinhnguyenthanhdn/tide-flow" target="_blank" rel="noopener noreferrer">Contribute or leave a star</a>
       if this is useful.
+      <a class="ml-1 text-ocean-highlight underline underline-offset-2" href="https://github.com/vinhnguyenthanhdn/tide-flow/blob/main/THIRD_PARTY_NOTICES.md" target="_blank" rel="noopener noreferrer">Third-party notices</a>
     </p>
   </footer>
 
-  <!-- App JS (module — sets window.tideApp before Alpine loads) -->
+  <!-- App JS imports and starts the locally vendored Alpine module. -->
   <script type="module" src="app.js"></script>
-
-  <!-- Alpine.js — loaded after app.js has registered the component. -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const s = document.createElement('script')
-      s.src = 'https://unpkg.com/alpinejs@3.15.12/dist/cdn.min.js'
-      document.head.appendChild(s)
-    })
-  </script>
 
 </body>
 </html>

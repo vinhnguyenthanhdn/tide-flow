@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  background-color: #020817;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
+
+html { overflow-x: hidden; }
+.glow-text { text-shadow: 0 0 20px rgb(14 165 233 / 50%); }
+.glass {
+  background: rgb(255 255 255 / 5%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.flatpickr-calendar { background: #0f172a !important; border-color: #1e293b !important; }
+.flatpickr-day { color: #f1f5f9 !important; }
+.flatpickr-day.selected,
+.flatpickr-day.inRange { background: #1e40af !important; border-color: #1e40af !important; }
+.flatpickr-day:hover { background: #1e293b !important; }
+.flatpickr-month,
+.flatpickr-weekday { color: #94a3b8 !important; fill: #94a3b8 !important; }
+.flatpickr-current-month { color: #f1f5f9 !important; }
+.numInputWrapper span { border-color: #1e293b !important; }
+.flatpickr-prev-month svg,
+.flatpickr-next-month svg { fill: #94a3b8 !important; }
+.chart-scroll {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-color: #334155 #0f172a;
+}
+.chart-stage { height: 320px; min-width: 100%; }
+
+@media (max-width: 639px) {
+  .chart-stage { width: var(--chart-mobile-width); }
+}
