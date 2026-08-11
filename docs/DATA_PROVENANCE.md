@@ -1,6 +1,6 @@
 # Data provenance
 
-Tide Flow VN currently contains two data-like inputs: coastal location coordinates in `src/locations.js` and harmonic demonstration coefficients in `src/tide-constituents.js`.
+Tide Flow currently contains two data-like inputs: coastal location coordinates in `src/locations.js` and harmonic demonstration coefficients in `src/tide-constituents.js`.
 
 ## Current status
 

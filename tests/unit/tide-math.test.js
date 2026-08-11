@@ -73,11 +73,21 @@ describe('date handling', () => {
     expect(toLocalISODate(localMidnight)).toBe('2026-05-07')
   })
 
-  test('generates complete Vietnam-local days at hourly resolution', () => {
-    const data = generateHourlyData(DA_NANG_CONSTITUENTS, '2026-05-01', '2026-05-03')
+  test('generates complete location-local days at hourly resolution', () => {
+    const data = generateHourlyData(DA_NANG_CONSTITUENTS, '2026-05-01', '2026-05-03', 'Asia/Ho_Chi_Minh')
     expect(data).toHaveLength(72)
     expect(data[0].time.toISOString()).toBe('2026-04-30T17:00:00.000Z')
     expect(data.at(-1).time.toISOString()).toBe('2026-05-03T16:00:00.000Z')
+  })
+
+  test('follows daylight-saving transitions in the selected timezone', () => {
+    const spring = generateHourlyData(DA_NANG_CONSTITUENTS, '2026-03-08', '2026-03-08', 'America/New_York')
+    const autumn = generateHourlyData(DA_NANG_CONSTITUENTS, '2026-11-01', '2026-11-01', 'America/New_York')
+
+    expect(spring).toHaveLength(23)
+    expect(spring[0].time.toISOString()).toBe('2026-03-08T05:00:00.000Z')
+    expect(autumn).toHaveLength(25)
+    expect(autumn[0].time.toISOString()).toBe('2026-11-01T04:00:00.000Z')
   })
 })
 

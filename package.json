@@ -1,8 +1,8 @@
 {
   "name": "tide-flow",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Open-source harmonic tide visualization for coastal Vietnam",
+  "description": "Open-source harmonic tide visualization for coastal locations worldwide",
   "license": "MIT",
   "author": "Vinh Nguyen",
   "homepage": "https://vinhnguyenthanhdn.github.io/tide-flow/",
@@ -17,7 +17,7 @@
     "tide",
     "tidal-constituents",
     "harmonic-analysis",
-    "vietnam",
+    "global-tides",
     "data-visualization"
   ],
   "type": "module",
@@ -36,13 +36,6 @@
   },
   "engines": {
     "node": ">=20.19"
-  },
-  "dependencies": {
-    "alpinejs": "^3.16.0",
-    "chart.js": "^4.5.1",
-    "chartjs-plugin-zoom": "^2.2.0",
-    "flatpickr": "^4.6.13",
-    "hammerjs": "^2.0.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

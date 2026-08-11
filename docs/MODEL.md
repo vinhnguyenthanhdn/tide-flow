@@ -1,6 +1,6 @@
 # Model and data notes
 
-This document separates what Tide Flow VN currently computes from what would be required for a defensible tide prediction.
+This document separates what Tide Flow currently computes from what would be required for a defensible tide prediction.
 
 ## Current implementation
 
@@ -10,7 +10,7 @@ Each location has a mean offset `Z0` and approximate amplitude/phase pairs for f
 h(t) = Z0 + Σ Aᵢ cos(ωᵢt − φᵢ)
 ```
 
-Angular speeds are expressed in degrees per hour, and `t` is measured from 2000-01-01 00:00 UTC. The UI generates one value for each hour in the requested Vietnam-local calendar range.
+Angular speeds are expressed in degrees per hour, and `t` is measured from 2000-01-01 00:00 UTC. The UI generates hourly values across the selected location's local calendar range.
 
 This is enough to demonstrate harmonic composition, mixed versus semi-diurnal shapes, spring/neap-like modulation, and a charting workflow. It is not enough to publish operational tide times or heights.
 
@@ -47,6 +47,6 @@ Prefer improving one location to this standard over adding many unsupported coef
 
 ## Time handling
 
-The UI interprets selected dates as Vietnam time (UTC+7). `toLocalISODate` prevents the browser's UTC serialization from moving a local-midnight selection to the previous date. `generateHourlyData` then creates exactly 24 samples per Vietnam-local day.
+Every location declares an IANA timezone in `src/locations.js`. `toLocalISODate` prevents the browser's UTC serialization from moving a local-midnight selection to the previous date. `generateHourlyData` converts the selected calendar boundaries to the location's timezone and follows daylight-saving transitions, so a transition day may contain 23 or 25 hourly samples instead of 24.
 
 The harmonic phase convention remains tied to the UTC epoch. Any future imported constituent set must document its phase convention and convert it explicitly rather than assuming compatibility.

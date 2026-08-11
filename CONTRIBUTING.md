@@ -1,4 +1,4 @@
-# Contributing to Tide Flow VN
+# Contributing to Tide Flow
 
 Thank you for helping make this project more useful and more honest. Small, focused pull requests are easier to review and more likely to ship.
 
@@ -33,7 +33,7 @@ Useful contributions include:
 - keyboard, contrast, screen-reader, or small-screen improvements;
 - a documented public gauge dataset and import procedure;
 - validation metrics for an existing location;
-- clear English copy and accurate Vietnamese place names.
+- clear English copy and accurate local place names.
 
 ## Pull request checklist
 

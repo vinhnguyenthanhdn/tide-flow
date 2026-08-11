@@ -1,17 +1,18 @@
 import { describe, test, expect } from 'vitest'
 import { LOCATIONS } from '../../src/locations.js'
+import { TIDAL_CONSTITUENTS } from '../../src/tide-constituents.js'
 
 describe('LOCATIONS', () => {
-  test('has 12 locations', () => {
-    expect(LOCATIONS.length).toBe(12)
+  test('has 24 locations', () => {
+    expect(LOCATIONS.length).toBe(24)
   })
 
-  test('all locations have valid lat/lon for Vietnam', () => {
+  test('all locations have valid global coordinates', () => {
     LOCATIONS.forEach(loc => {
-      expect(loc.lat).toBeGreaterThan(0)
-      expect(loc.lat).toBeLessThan(25)
-      expect(loc.lon).toBeGreaterThan(100)
-      expect(loc.lon).toBeLessThan(115)
+      expect(loc.lat).toBeGreaterThanOrEqual(-90)
+      expect(loc.lat).toBeLessThanOrEqual(90)
+      expect(loc.lon).toBeGreaterThanOrEqual(-180)
+      expect(loc.lon).toBeLessThanOrEqual(180)
     })
   })
 
@@ -27,10 +28,32 @@ describe('LOCATIONS', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
+  test('every location has one demonstration coefficient set', () => {
+    expect(Object.keys(TIDAL_CONSTITUENTS).sort()).toEqual(LOCATIONS.map(loc => loc.id).sort())
+  })
+
   test('all locations have a non-empty display name', () => {
     LOCATIONS.forEach(loc => {
       expect(loc.name).toBeTruthy()
       expect(loc.name.length).toBeGreaterThan(2)
     })
+  })
+
+  test('all locations have an English country name and valid IANA timezone', () => {
+    LOCATIONS.forEach(loc => {
+      expect(loc.country.length).toBeGreaterThan(2)
+      expect(() => new Intl.DateTimeFormat('en', { timeZone: loc.timeZone })).not.toThrow()
+    })
+  })
+
+  test('includes internationally recognized locations across six continents', () => {
+    const ids = new Set(LOCATIONS.map(loc => loc.id))
+    expect(ids.has('bay-of-fundy')).toBe(true)
+    expect(ids.has('london-thames')).toBe(true)
+    expect(ids.has('new-york-harbor')).toBe(true)
+    expect(ids.has('rio-de-janeiro')).toBe(true)
+    expect(ids.has('cape-town')).toBe(true)
+    expect(ids.has('sydney-harbour')).toBe(true)
+    expect(ids.has('tokyo-bay')).toBe(true)
   })
 })

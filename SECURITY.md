@@ -10,4 +10,4 @@ Include the affected URL or file, reproduction steps, impact, and any suggested 
 
 ## Scope
 
-Tide Flow VN is a static client-side application. Security reports about its source, dependency chain, GitHub Pages deployment, or handling of untrusted input are in scope. Model accuracy issues are important but should be reported through the normal issue tracker unless they also create a software security problem.
+Tide Flow is a static client-side application. Security reports about its source, dependency chain, GitHub Pages deployment, or handling of untrusted input are in scope. Model accuracy issues are important but should be reported through the normal issue tracker unless they also create a software security problem.

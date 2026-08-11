@@ -1,6 +1,6 @@
 # Code of Conduct
 
-Tide Flow VN is committed to a welcoming, harassment-free collaboration space.
+Tide Flow is committed to a welcoming, harassment-free collaboration space.
 
 ## Expected behavior
 

@@ -13,9 +13,11 @@ test.describe('Tide Chart App', () => {
     await expect(page.getByTestId('model-warning')).toContainText('Never use them for navigation')
   })
 
-  test('Bai Rang is in location list', async ({ page }) => {
+  test('Vietnamese and international locations are in the location list', async ({ page }) => {
     const options = await page.locator('[data-testid="location-selector"] option').allTextContents()
     expect(options.some(o => o.includes('Bãi Rạng'))).toBe(true)
+    expect(options.some(o => o.includes('Bay of Fundy — Canada'))).toBe(true)
+    expect(options.some(o => o.includes('Sydney Harbour — Australia'))).toBe(true)
   })
 
   test('date picker opens on click', async ({ page }) => {
@@ -62,9 +64,9 @@ test.describe('Tide Chart App', () => {
 
   test('changing location updates chart title', async ({ page }) => {
     await page.waitForSelector('[data-testid="chart-title"]')
-    await page.selectOption('[data-testid="location-selector"]', 'vung-tau')
+    await page.selectOption('[data-testid="location-selector"]', 'new-york-harbor')
     const title = await page.locator('[data-testid="chart-title"]').textContent()
-    expect(title).toContain('Vũng Tàu')
+    expect(title).toContain('New York Harbor, United States')
   })
 
   test('30-day preset shows a complete date on peak summaries', async ({ page }) => {

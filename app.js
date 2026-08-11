@@ -1,5 +1,4 @@
-// tide-flow app — Alpine.js global component
-// All src/ imports done inline; CDN scripts loaded before this file
+// Tide Flow application — Alpine.js global component.
 
 import { LOCATIONS } from './src/locations.js'
 import { TIDAL_CONSTITUENTS } from './src/tide-constituents.js'
@@ -9,10 +8,33 @@ import Alpine from './assets/vendor/alpine.esm.min.js'
 const MAX_DAYS = 30
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const zonedFormatterCache = new Map()
 
 // Short date with weekday: "Thu, 07/05"
 function formatDateShort(d) {
   return `${WEEKDAYS[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
+}
+
+function zonedDateParts(date, timeZone) {
+  if (!zonedFormatterCache.has(timeZone)) {
+    zonedFormatterCache.set(timeZone, new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }))
+  }
+  const parts = zonedFormatterCache.get(timeZone).formatToParts(date)
+  return Object.fromEntries(parts.filter(part => part.type !== 'literal').map(part => [part.type, part.value]))
+}
+
+function formatZonedDate(date, timeZone, includeTime = false) {
+  const parts = zonedDateParts(date, timeZone)
+  const dateLabel = `${parts.weekday}, ${parts.day}/${parts.month}`
+  return includeTime ? `${parts.day}/${parts.month} · ${parts.hour}:${parts.minute}` : dateLabel
 }
 
 function addDays(d, n) {
@@ -21,20 +43,12 @@ function addDays(d, n) {
   return r
 }
 
-function formatTime(date) {
-  return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+function loadTideData(location, startDate, endDate) {
+  const c = TIDAL_CONSTITUENTS[location.id]
+  return c ? generateHourlyData(c, startDate, endDate, location.timeZone) : []
 }
 
-function formatDateTime(date) {
-  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')} · ${formatTime(date)}`
-}
-
-function loadTideData(locationId, startDate, endDate) {
-  const c = TIDAL_CONSTITUENTS[locationId]
-  return c ? generateHourlyData(c, startDate, endDate) : []
-}
-
-function computeStats(data) {
+function computeStats(data, timeZone) {
   if (!data.length) return { max: null, min: null, avg: null, range: null, maxTime: '', minTime: '' }
   const heights = data.map(d => d.height)
   const maxH = Math.max(...heights)
@@ -44,8 +58,8 @@ function computeStats(data) {
   const avg = heights.reduce((a, b) => a + b, 0) / heights.length
   return {
     max: maxH, min: minH, avg, range: maxH - minH,
-    maxTime: formatDateTime(data[maxIdx].time),
-    minTime: formatDateTime(data[minIdx].time),
+    maxTime: formatZonedDate(data[maxIdx].time, timeZone, true),
+    minTime: formatZonedDate(data[minIdx].time, timeZone, true),
   }
 }
 
@@ -56,7 +70,7 @@ let _fp = null
 function tideAppFactory() {
   return {
     locations: LOCATIONS,
-    selectedLocationId: 'bai-rang',
+    selectedLocationId: 'bay-of-fundy',
     startDate: null,
     endDate: null,
     activePreset: 7,
@@ -67,6 +81,10 @@ function tideAppFactory() {
       return this.locations.find(l => l.id === this.selectedLocationId)
     },
 
+    get selectedLocationLabel() {
+      return this.selectedLocation ? `${this.selectedLocation.name}, ${this.selectedLocation.country}` : ''
+    },
+
     get dateRangeLabel() {
       if (!this.startDate || !this.endDate) return 'Choose dates...'
       return `${formatDateShort(this.startDate)}  →  ${formatDateShort(this.endDate)}`
@@ -75,7 +93,7 @@ function tideAppFactory() {
     get chartTitle() {
       if (!this.selectedLocation || !this.startDate || !this.endDate) return ''
       const days = Math.round((this.endDate - this.startDate) / 86400000) + 1
-      return `${this.selectedLocation.name} · ${formatDateShort(this.startDate)} → ${formatDateShort(this.endDate)} · ${days} days`
+      return `${this.selectedLocationLabel} · ${formatDateShort(this.startDate)} → ${formatDateShort(this.endDate)} · ${days} days`
     },
 
     get chartMinWidth() {
@@ -143,6 +161,7 @@ function tideAppFactory() {
       if (_chart) { _chart.destroy(); _chart = null }
       const ctx = document.getElementById('tideChart').getContext('2d')
       const gradient = ctx.createLinearGradient(0, 0, 0, 300)
+      const app = this
       gradient.addColorStop(0, 'rgba(14, 165, 233, 0.35)')
       gradient.addColorStop(1, 'rgba(14, 165, 233, 0.0)')
 
@@ -178,7 +197,8 @@ function tideAppFactory() {
                 title: (items) => {
                   const d = new Date(items[0].label)
                   if (isNaN(d)) return items[0].label
-                  return `${WEEKDAYS[d.getDay()]} ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}  ${String(d.getHours()).padStart(2,'0')}:00`
+                  const parts = zonedDateParts(d, app.selectedLocation.timeZone)
+                  return `${parts.weekday} ${parts.day}/${parts.month}  ${parts.hour}:${parts.minute}`
                 },
                 label: (item) => ` ${item.parsed.y.toFixed(2)} m`,
               },
@@ -199,10 +219,9 @@ function tideAppFactory() {
                   const label = this.getLabelForValue(val)
                   const d = new Date(label)
                   if (isNaN(d)) return ''
-                  if (d.getHours() !== 0) return ''
-                  const weekday = WEEKDAYS[d.getDay()]
-                  const date = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`
-                  return `${weekday} ${date}`
+                  const parts = zonedDateParts(d, app.selectedLocation.timeZone)
+                  if (parts.hour !== '00') return ''
+                  return `${parts.weekday} ${parts.day}/${parts.month}`
                 },
               },
               grid: { color: '#1E293B' },
@@ -228,8 +247,8 @@ function tideAppFactory() {
       const s = toLocalISODate(this.startDate)
       const e = toLocalISODate(this.endDate)
 
-      const data = loadTideData(loc.id, s, e)
-      this.stats = computeStats(data)
+      const data = loadTideData(loc, s, e)
+      this.stats = computeStats(data, loc.timeZone)
       _chart.data.labels = data.map(d => d.time.toISOString())
       _chart.data.datasets[0].data = data.map(d => d.height)
       if (_chart.resetZoom) _chart.resetZoom()

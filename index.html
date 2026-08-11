@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Open-source harmonic tide visualization for 12 coastal locations in Vietnam." />
+  <meta name="description" content="Open-source harmonic tide visualization for 24 coastal locations around the world." />
   <meta name="theme-color" content="#020817" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'" />
-  <meta property="og:title" content="Tide Flow VN" />
-  <meta property="og:description" content="Explore approximate tidal patterns across 12 coastal locations in Vietnam." />
+  <meta property="og:title" content="Tide Flow" />
+  <meta property="og:description" content="Explore approximate tidal patterns across 24 coastal locations around the world." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vinhnguyenthanhdn.github.io/tide-flow/" />
   <meta property="og:image" content="https://vinhnguyenthanhdn.github.io/tide-flow/docs/assets/social-preview.png" />
   <meta property="og:image:width" content="1280" />
   <meta property="og:image:height" content="640" />
-  <meta property="og:image:alt" content="Tide Flow VN harmonic tide chart" />
+  <meta property="og:image:alt" content="Tide Flow harmonic tide chart" />
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://vinhnguyenthanhdn.github.io/tide-flow/" />
-  <title>Tide Flow VN — Harmonic tide visualization</title>
+  <title>Tide Flow — Global harmonic tide visualization</title>
 
   <!-- Flatpickr -->
   <link rel="stylesheet" href="assets/vendor/flatpickr.min.css" />
@@ -36,17 +36,17 @@
 <body class="min-h-screen text-slate-100" x-data="tideApp()" x-init="init()">
 
   <noscript>
-    <p class="bg-amber-950 px-4 py-3 text-center text-sm text-amber-200">Tide Flow VN requires JavaScript to draw the chart.</p>
+    <p class="bg-amber-950 px-4 py-3 text-center text-sm text-amber-200">Tide Flow requires JavaScript to draw the chart.</p>
   </noscript>
 
   <!-- Header -->
   <header class="border-b border-ocean-border">
     <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-      <a class="flex items-center gap-3" href="./" aria-label="Tide Flow VN home">
+      <a class="flex items-center gap-3" href="./" aria-label="Tide Flow home">
         <span class="font-mono text-ocean-highlight text-xl font-bold glow-text">[ ~ ]</span>
         <div>
-          <h1 class="font-mono font-bold text-lg text-slate-100 leading-tight">Tide Flow VN</h1>
-          <p class="text-xs text-slate-400 font-sans">Harmonic tide visualization</p>
+          <h1 class="font-mono font-bold text-lg text-slate-100 leading-tight">Tide Flow</h1>
+          <p class="text-xs text-slate-400 font-sans">Global harmonic tide visualization</p>
         </div>
       </a>
 
@@ -66,7 +66,7 @@
           class="max-w-full rounded-lg border border-ocean-border bg-ocean-surface px-3 py-2 font-mono text-sm text-slate-100 focus:border-ocean-accent focus:outline-none"
         >
           <template x-for="loc in locations" :key="loc.id">
-            <option :value="loc.id" x-text="loc.name"></option>
+            <option :value="loc.id" x-text="`${loc.name} — ${loc.country}`"></option>
           </template>
         </select>
       </div>
@@ -126,6 +126,7 @@
       <strong class="font-semibold">Educational model:</strong>
       values use approximate, uncalibrated coefficients. Never use them for navigation or safety decisions.
       <a class="font-medium text-amber-300 underline decoration-amber-500/60 underline-offset-2 hover:text-amber-200" href="https://github.com/vinhnguyenthanhdn/tide-flow/blob/main/docs/MODEL.md" target="_blank" rel="noopener noreferrer">Read the limitations.</a>
+      Times are shown in the selected location's timezone.
     </aside>
 
     <!-- Chart Title -->

@@ -23,6 +23,57 @@ export function toLocalISODate(date) {
   return `${year}-${month}-${day}`
 }
 
+const zonedFormatterCache = new Map()
+
+function getZonedFormatter(timeZone) {
+  if (!zonedFormatterCache.has(timeZone)) {
+    zonedFormatterCache.set(timeZone, new Intl.DateTimeFormat('en-CA', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+    }))
+  }
+  return zonedFormatterCache.get(timeZone)
+}
+
+function getZonedParts(date, timeZone) {
+  return Object.fromEntries(
+    getZonedFormatter(timeZone)
+      .formatToParts(date)
+      .filter(part => part.type !== 'literal')
+      .map(part => [part.type, Number(part.value)]),
+  )
+}
+
+function zonedMidnight(dateStr, timeZone) {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const target = Date.UTC(year, month - 1, day)
+  let guess = target
+
+  // Intl exposes a zone's calendar fields but not a direct constructor. Iterating
+  // the observed offset converges on local midnight, including DST transitions.
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const parts = getZonedParts(new Date(guess), timeZone)
+    const represented = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second)
+    const correction = target - represented
+    guess += correction
+    if (correction === 0) break
+  }
+
+  return new Date(guess)
+}
+
+function addISODateDays(dateStr, days) {
+  const date = new Date(`${dateStr}T12:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
 // Compute tidal height at a given Date using harmonic constituents
 export function computeTideLevel(constituents, date) {
   const t = hoursFromEpoch(date)
@@ -37,13 +88,13 @@ export function computeTideLevel(constituents, date) {
 }
 
 // Generate hourly tide data for a date range
-export function generateHourlyData(constituents, startDate, endDate) {
+export function generateHourlyData(constituents, startDate, endDate, timeZone = 'Asia/Ho_Chi_Minh') {
   const result = []
-  const start = new Date(`${startDate}T00:00:00+07:00`)
-  const end = new Date(`${endDate}T23:00:00+07:00`)
+  const start = zonedMidnight(startDate, timeZone)
+  const endExclusive = zonedMidnight(addISODateDays(endDate, 1), timeZone)
 
   const cur = new Date(start)
-  while (cur <= end) {
+  while (cur < endExclusive) {
     result.push({ time: new Date(cur), height: computeTideLevel(constituents, cur) })
     cur.setTime(cur.getTime() + 3_600_000)
   }

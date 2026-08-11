@@ -1,32 +1,47 @@
-# Tide Flow VN
+# Tide Flow
 
 [![CI](https://github.com/vinhnguyenthanhdn/tide-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/vinhnguyenthanhdn/tide-flow/actions/workflows/ci.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-22c55e.svg)](LICENSE)
 [![Live demo](https://img.shields.io/badge/demo-live-0ea5e9.svg)](https://vinhnguyenthanhdn.github.io/tide-flow/)
 
-An open-source, browser-based visualization of approximate tidal patterns at 12 coastal locations in Vietnam. Tide Flow VN runs without a backend or tide API: a small harmonic model generates hourly values, and Chart.js makes the pattern explorable.
+An open-source, browser-based visualization of approximate tidal patterns at 24 coastal locations around the world. Tide Flow runs without a backend or tide API: a small harmonic model generates hourly values, and Chart.js makes the pattern explorable.
 
 **[Open the live demo](https://vinhnguyenthanhdn.github.io/tide-flow/)** · **[Report a problem](https://github.com/vinhnguyenthanhdn/tide-flow/issues/new/choose)**
 
-![Tide Flow VN showing a seven-day tidal chart](docs/assets/tide-flow.png)
+![Tide Flow showing a seven-day tidal chart](docs/assets/tide-flow.png)
 
 > [!IMPORTANT]
-> Tide Flow VN is an educational visualization, not an official tide table. The coefficients are approximate and have not been calibrated against a named gauge and datum. Do not use it for navigation, fishing safety, rescue, flood warnings, or any decision where timing or water level matters.
+> Tide Flow is an educational visualization, not an official tide table. The coefficients are approximate and have not been calibrated against a named gauge and datum. Do not use it for navigation, fishing safety, rescue, flood warnings, or any decision where timing or water level matters.
 
 ## Why this project exists
 
-Vietnamese tide information is often published as static tables or images. This project explores a smaller, inspectable alternative: represent a location as a handful of harmonic constituents, generate the curve locally, and make the assumptions visible in code.
+Tide information is often spread across regional services, static tables, and specialist formats. This project explores a small, inspectable alternative: represent a location as a handful of harmonic constituents, generate the curve locally, and make the assumptions visible in code.
 
 The repository is intentionally lightweight so that contributors can understand the full path from coefficients to pixels without learning a framework or provisioning a backend.
 
 ## Features
 
-- 12 coastal locations across Vietnam.
+- 24 coastal locations across six continents, including 12 in Vietnam and 12 internationally recognized coastlines and harbors.
 - Seven-day, 30-day, and custom date ranges.
 - Hourly harmonic curve with high, low, average, and range statistics.
 - Zoom, pan, a horizontally explorable mobile chart, and an English UI.
 - No account, analytics, backend, runtime tide API, or third-party runtime CDN.
 - Unit tests for the model and date handling; Playwright tests for the UI.
+
+## Locations
+
+The collection combines 12 Vietnamese coastal destinations with 12 internationally recognized coastlines and harbors:
+
+| Vietnam | International |
+| --- | --- |
+| Bãi Rạng · Đà Nẵng · Hội An | Bay of Fundy, Canada · Mont-Saint-Michel, France |
+| Nha Trang · Mũi Né · Vũng Tàu | London (River Thames), United Kingdom · Venice, Italy |
+| Phú Quốc · Côn Đảo · Hạ Long | New York Harbor · San Francisco Bay, United States |
+| Sầm Sơn · Lăng Cô · Quy Nhơn | Rio de Janeiro, Brazil · Cape Town, South Africa |
+|  | Sydney Harbour, Australia · Tokyo Bay, Japan |
+|  | Singapore Strait, Singapore · Auckland, New Zealand |
+
+Names identify recognizable coastal areas, not calibrated gauge stations. Coordinates and coefficients remain demonstration inputs with the provenance limits described below.
 
 ## Quick start
 
@@ -76,7 +91,7 @@ The honest boundary of the project is important:
 - No gauge station, vertical datum, calibration interval, uncertainty, nodal correction, or meteorological residual is currently attached to them.
 - Wind, pressure, river discharge, storm surge, bathymetry, and local harbor effects are outside the model.
 - Displayed maxima and minima are extrema of the generated hourly series, not certified high/low tide events.
-- The date range is interpreted in Vietnam time (UTC+7).
+- Date boundaries and chart labels use the selected location's IANA timezone, including daylight-saving transitions.
 
 A high-value contribution would replace one location's approximate coefficients with a reproducible, cited calibration and validation report. That work is more useful than adding many unsupported locations.
 
@@ -108,7 +123,7 @@ Contributions are welcome, especially:
 - cited and reproducible gauge calibration;
 - validation fixtures and uncertainty reporting;
 - accessibility and mobile improvements;
-- English copy improvements and accurate Vietnamese place names;
+- English copy improvements and accurate local place names;
 - tests that expose a real model or timezone error.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. For model changes, include the source, station/datum metadata, transformation steps, and an error comparison against held-out observations.
@@ -120,12 +135,12 @@ New contributors can start with the curated [`good first issue`](https://github.
 - [ ] Calibrate the first location against a citable gauge dataset.
 - [ ] Show source, datum, calibration period, and error per location.
 - [ ] Add high/low event interpolation with uncertainty.
-- [ ] Make the UI bilingual.
+- [ ] Add optional interface translations without changing the English default.
 - [ ] Export a chart and its model metadata together.
 
 ## Support the project
 
-If Tide Flow VN helped you learn, debug a visualization, or start a better calibrated implementation, **[leave a star](https://github.com/vinhnguyenthanhdn/tide-flow)**. Stars help other contributors discover the project.
+If Tide Flow helped you learn, debug a visualization, or start a better calibrated implementation, **[leave a star](https://github.com/vinhnguyenthanhdn/tide-flow)**. Stars help other contributors discover the project.
 
 The most valuable support is still evidence: open an issue with a public tide-gauge source, a reproducible mismatch, or a focused improvement you are willing to test.
 
