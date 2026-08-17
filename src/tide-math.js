@@ -116,7 +116,7 @@ export function findLocalMaxima(data, { minProminence = 0 } = {}) {
 }
 
 // Find local minima indices with optional minimum prominence filter
-export function findLocalMinima(data, { minProminence = 0 } = {}) {
+function findLocalMinima(data, { minProminence = 0 } = {}) {
   const troughs = []
   for (let i = 1; i < data.length - 1; i++) {
     if (data[i] < data[i - 1] && data[i] < data[i + 1]) {
