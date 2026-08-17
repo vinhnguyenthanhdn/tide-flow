@@ -35,6 +35,18 @@ Useful contributions include:
 - validation metrics for an existing location;
 - clear English copy and accurate local place names.
 
+## Ways to contribute that aren't code
+
+This project predicts something a person can walk down to the water and check. That check is a contribution, and it is the one nobody at a keyboard can substitute:
+
+- **Compare a prediction against the water, or against a published gauge.** Date, place, predicted time and height, observed time and height. A disagreement is a finding; an agreement is a validation record.
+- **Report what the page does on your device.** Small screens, screen readers, high-contrast modes and older browsers are where the interface breaks, and the test suite runs in one browser engine.
+- **Reproduce an open issue, or report that you could not** — with the browser and locale you used.
+- **Say what a place name should be** in the language of the people who live there.
+- **Review an open pull request**, especially one touching the harmonic model, where a plausible-looking curve is the failure mode.
+
+`CHANGELOG.md` credits the person who reported or verified a change, not only the author of the commit.
+
 ## Pull request checklist
 
 - Keep the change focused and explain the user-visible outcome.
