@@ -52,6 +52,8 @@ This project predicts something a person can walk down to the water and check. T
 - Keep the change focused and explain the user-visible outcome.
 - Name every export you remove from `src/`. The page, the tests and anyone who vendored these modules all import from there, so a name that quietly disappears breaks callers who never saw the pull request. You may still remove one — the description has to say which and why. The `scope-guard` job compares the exports of each changed `src/*.js` between the base and your branch and fails on an unmentioned removal.
 - Add or update tests for behavior changes.
+- Add a line under `## [Unreleased]` in [`CHANGELOG.md`](CHANGELOG.md) for anything a visitor to
+  the page would notice. Pure refactors, typo fixes and internal test additions do not need one.
 - Run `npm run build`, `npm run test:all`, and `npm audit`.
 - Update documentation when assumptions, commands, or limitations change.
 - Include screenshots for visual changes.
