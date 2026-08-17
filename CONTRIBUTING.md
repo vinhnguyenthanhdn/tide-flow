@@ -38,6 +38,7 @@ Useful contributions include:
 ## Pull request checklist
 
 - Keep the change focused and explain the user-visible outcome.
+- Name every export you remove from `src/`. The page, the tests and anyone who vendored these modules all import from there, so a name that quietly disappears breaks callers who never saw the pull request. You may still remove one — the description has to say which and why. The `scope-guard` job compares the exports of each changed `src/*.js` between the base and your branch and fails on an unmentioned removal.
 - Add or update tests for behavior changes.
 - Run `npm run build`, `npm run test:all`, and `npm audit`.
 - Update documentation when assumptions, commands, or limitations change.
