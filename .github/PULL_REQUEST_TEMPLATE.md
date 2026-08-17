@@ -11,6 +11,7 @@ Closes #
 - [ ] `npm run build` and the generated CSS is committed
 - [ ] `npm audit`
 - [ ] Documentation updated when assumptions or commands changed
+- [ ] `CHANGELOG.md` has a line under `## [Unreleased]` when the change is user-visible
 - [ ] Screenshot attached for visual changes
 
 ## Model/data evidence
