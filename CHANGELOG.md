@@ -23,6 +23,9 @@ input. No release changes that.
   from `src/` fails unless the description names that export (#14). The page, the tests
   and anyone who vendored these modules import from there, so a name that disappears
   quietly breaks callers who never saw the pull request.
+- A test tying the `package.json` version to the newest released heading in this file.
+  Both are read as the shipped version and nothing compared them, so a release could move
+  one and leave the other behind with the suite still green.
 
 ## [1.1.0] - 2026-08-11
 
