@@ -23,6 +23,15 @@ npm run test:all
 
 Run the app with `npm run serve`, then open <http://localhost:3000>.
 
+Two more scripts exist and are easy to miss, because nothing else in this file names them:
+
+| Script | Use it when |
+| --- | --- |
+| `npm run test:watch` | Iterating on a unit test. Same tests as `npm test`, left running instead of exiting |
+| `npm run capture:social` | The social preview image needs regenerating. Renders `docs/social-preview.html` to `docs/assets/social-preview.png` at 1280×640 with Playwright's Chromium, so it needs the browser installed above |
+
+`build:css`, `build:vendor` and `build:site` are steps that `build` and the deploy workflow call; there is no reason to run them by hand.
+
 ## Choosing a contribution
 
 [Issues labeled `good first issue`](https://github.com/vinhnguyenthanhdn/tide-flow/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) should be self-contained. Model and calibration work is intentionally held to a higher evidence standard; see [docs/MODEL.md](docs/MODEL.md).
