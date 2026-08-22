@@ -42,6 +42,39 @@ jobs:
       - run: npm run test:coverage
       - run: npm audit --audit-level=high
 
+  node-floor:
+    name: Unit tests on the declared engines.node floor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # The version comes out of package.json rather than being written here, so
+      # raising engines.node moves this job with it. A number copied into the
+      # workflow would keep passing on the old floor and nothing would say so.
+      - id: floor
+        run: |
+          floor=$(node -p "(require('./package.json').engines?.node || '').match(/[0-9][0-9.]*/)?.[0] || ''")
+          [ -n "$floor" ] || { echo "::error::engines.node is missing or carries no version"; exit 1; }
+          echo "Declared floor: $floor"
+          echo "version=$floor" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ steps.floor.outputs.version }}
+          cache: npm
+      # engines.node names a line (20.19), setup-node resolves a release in it
+      # (20.19.6), so this asserts the line and not the exact string.
+      - name: Confirm the running Node is on the declared floor line
+        env:
+          FLOOR: ${{ steps.floor.outputs.version }}
+        run: |
+          running=$(node -p 'process.versions.node')
+          case "$running" in
+            "$FLOOR"|"$FLOOR".*) echo "Running Node $running on floor line $FLOOR" ;;
+            *) echo "::error::setup-node resolved to $running, not the declared floor $FLOOR"; exit 1 ;;
+          esac
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:coverage
+
   e2e:
     name: Browser tests
     runs-on: ubuntu-latest
