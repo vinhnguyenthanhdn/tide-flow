@@ -60,10 +60,17 @@ jobs:
         with:
           node-version: ${{ steps.floor.outputs.version }}
           cache: npm
-      - name: Confirm the running Node is the declared floor
+      # engines.node names a line (20.19), setup-node resolves a release in it
+      # (20.19.6), so this asserts the line and not the exact string.
+      - name: Confirm the running Node is on the declared floor line
+        env:
+          FLOOR: ${{ steps.floor.outputs.version }}
         run: |
-          [ "$(node -p 'process.versions.node')" = "${{ steps.floor.outputs.version }}" ] \
-            || { echo "::error::setup-node resolved to $(node -v), not the declared floor"; exit 1; }
+          running=$(node -p 'process.versions.node')
+          case "$running" in
+            "$FLOOR"|"$FLOOR".*) echo "Running Node $running on floor line $FLOOR" ;;
+            *) echo "::error::setup-node resolved to $running, not the declared floor $FLOOR"; exit 1 ;;
+          esac
       - run: npm ci
       - run: npm run build
       - run: npm run test:coverage
