@@ -63,7 +63,7 @@ This project predicts something a person can walk down to the water and check. T
 - Add or update tests for behavior changes.
 - Add a line under `## [Unreleased]` in [`CHANGELOG.md`](CHANGELOG.md) for anything a visitor to
   the page would notice. Pure refactors, typo fixes and internal test additions do not need one.
-- Run `npm run build`, `npm run test:all`, and `npm audit`.
+- Run `npm run test:all`. It is the same set of gates CI runs, in the same order: build, unit tests under the coverage thresholds, `npm audit --audit-level=high`, then the end-to-end suite.
 - Update documentation when assumptions, commands, or limitations change.
 - Include screenshots for visual changes.
 - Link the issue the pull request addresses.

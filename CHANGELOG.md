@@ -13,6 +13,13 @@ input. No release changes that.
 
 ## [Unreleased]
 
+### Changed
+
+- `npm run test:all` runs the gates CI runs, in CI's order: build, unit tests under the
+  coverage thresholds, `npm audit --audit-level=high`, then the end-to-end suite. It used to
+  run plain `npm test` and no audit, so the command `CONTRIBUTING.md` told contributors to run
+  before opening a pull request could pass while CI failed on a threshold it never checked.
+
 ### Added
 
 - An accessible reset-zoom control on the chart, reachable by keyboard and announced to
