@@ -32,7 +32,7 @@
     "test:coverage": "vitest run --coverage",
     "serve": "serve . -p 3000 -s",
     "test:e2e": "playwright test",
-    "test:all": "npm run build && npm test && npm run test:e2e"
+    "test:all": "npm run build && npm run test:coverage && npm audit --audit-level=high && npm run test:e2e"
   },
   "engines": {
     "node": ">=20.19"
