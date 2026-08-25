@@ -15,6 +15,9 @@ input. No release changes that.
 
 ### Changed
 
+- The bug-report form now warns that screenshots and console output can carry tokens,
+  account identifiers, private URLs, and unrelated browser data, and asks reporters to
+  remove them before attaching evidence.
 - `npm run test:all` runs the gates CI runs, in CI's order: build, unit tests under the
   coverage thresholds, `npm audit --audit-level=high`, then the end-to-end suite. It used to
   run plain `npm test` and no audit, so the command `CONTRIBUTING.md` told contributors to run

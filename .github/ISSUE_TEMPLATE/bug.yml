@@ -5,7 +5,9 @@ labels: [bug]
 body:
   - type: markdown
     attributes:
-      value: Thanks for helping improve Tide Flow VN. For model accuracy reports, include the comparison source and datum.
+      value: |
+        Thanks for helping improve Tide Flow VN. For model accuracy reports, include the comparison source and datum.
+        Before attaching screenshots or console output, remove tokens, account identifiers, private URLs, and unrelated browser data.
   - type: textarea
     id: problem
     attributes:
