@@ -13,6 +13,17 @@ input. No release changes that.
 
 ## [Unreleased]
 
+### Added
+
+- A Playwright case for panning, the one interaction the Features list names that no test
+  touched. Deleting the whole `pan` block from the chart options left the suite green, so
+  the feature could stop working without anything reporting it. Pan is easy to leave
+  uncovered because it needs a zoom first: the x scale is a category scale whose default
+  view already spans every hour in the range, so a drag on an unzoomed chart is clamped to
+  exactly where it started, which is correct and indistinguishable from a pan that does
+  nothing. The case zooms, drags, and requires both x bounds to move the same way by the
+  same amount -- moving them towards each other would be a second zoom, not a pan.
+
 ### Changed
 
 - The bug-report form now warns that screenshots and console output can carry tokens,
