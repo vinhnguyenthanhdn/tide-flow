@@ -94,6 +94,52 @@ test.describe('Tide Chart App', () => {
     await expect(resetZoom).toBeHidden()
   })
 
+  test('pans a zoomed chart sideways without changing how much it shows', async ({ page }) => {
+    // README lists pan next to zoom, and app.js enables it with an onPanComplete that is
+    // what makes the Reset zoom button appear. Nothing exercised it: deleting the whole
+    // pan block left this suite green.
+    //
+    // Pan needs a zoom first, and that is why it is easy to leave uncovered. The x scale
+    // is a category scale whose default view already spans every hour in the range, so a
+    // drag on an unzoomed chart is clamped to exactly where it started -- correct, and
+    // indistinguishable from a pan that does nothing at all.
+    const chart = page.getByRole('img', { name: 'Approximate hourly tide chart' })
+    const resetZoom = page.getByRole('button', { name: 'Reset zoom' })
+    const xBounds = () => chart.evaluate(canvas => {
+      const scale = Chart.getChart(canvas).scales.x
+      return [scale.min, scale.max]
+    })
+
+    await chart.hover()
+    await page.mouse.wheel(0, -400)
+    await expect.poll(() => chart.evaluate(canvas => Chart.getChart(canvas).isZoomedOrPanned())).toBe(true)
+    const zoomed = await xBounds()
+
+    const box = await chart.boundingBox()
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2)
+    await page.mouse.down()
+    await page.mouse.move(box.x + box.width * 0.25, box.y + box.height / 2, { steps: 16 })
+    await page.mouse.up()
+
+    await expect.poll(async () => (await xBounds())[0]).toBeGreaterThan(zoomed[0])
+    const panned = await xBounds()
+
+    // Both edges move the same way: that is what separates a pan from a second zoom,
+    // which would move them towards each other. Without this the case passes on any
+    // drag that happens to change the view at all.
+    expect(panned[1]).toBeGreaterThan(zoomed[1])
+    expect(panned[1] - panned[0]).toBe(zoomed[1] - zoomed[0])
+
+    // A pan must not clear the control, which is the only part of onPanComplete this
+    // app can observe: reaching pan at all requires a zoom, and that zoom has already
+    // set the flag through onZoomComplete. Stubbing onPanComplete out entirely leaves
+    // this green for that reason; writing the wrong value into it turns it red.
+    await expect(resetZoom).toBeVisible()
+    await resetZoom.click()
+    await expect.poll(() => chart.evaluate(canvas => Chart.getChart(canvas).isZoomedOrPanned())).toBe(false)
+    await expect(resetZoom).toBeHidden()
+  })
+
   test('changing location updates chart title', async ({ page }) => {
     await page.waitForSelector('[data-testid="chart-title"]')
     await page.selectOption('[data-testid="location-selector"]', 'new-york-harbor')
