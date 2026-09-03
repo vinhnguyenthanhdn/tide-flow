@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest'
-import { LOCATIONS } from '../../src/locations.js'
+import { LOCATIONS, emptyDataWarning } from '../../src/locations.js'
 import { TIDAL_CONSTITUENTS } from '../../src/tide-constituents.js'
 
 describe('LOCATIONS', () => {
@@ -55,5 +55,40 @@ describe('LOCATIONS', () => {
     expect(ids.has('cape-town')).toBe(true)
     expect(ids.has('sydney-harbour')).toBe(true)
     expect(ids.has('tokyo-bay')).toBe(true)
+  })
+})
+
+describe('every offered location can actually be drawn', () => {
+  // A location in the picker with no constituent set renders an empty chart and
+  // dashes for every statistic. Nothing throws, so the only person who finds out
+  // is the one looking at a blank curve — and they have nothing to report. These
+  // two directions keep that state from existing rather than describing it.
+  test('every location id has a harmonic constituent set', () => {
+    const ids = LOCATIONS.map(loc => loc.id)
+    expect(ids.length).toBeGreaterThan(0)
+    const missing = ids.filter(id => !TIDAL_CONSTITUENTS[id])
+    expect(missing).toEqual([])
+  })
+
+  test('every constituent set belongs to a location the picker offers', () => {
+    const ids = new Set(LOCATIONS.map(loc => loc.id))
+    const keys = Object.keys(TIDAL_CONSTITUENTS)
+    expect(keys.length).toBeGreaterThan(0)
+    const orphans = keys.filter(key => !ids.has(key))
+    expect(orphans).toEqual([])
+  })
+})
+
+describe('emptyDataWarning', () => {
+  const location = { id: 'somewhere', name: 'Somewhere Bay' }
+
+  test('says nothing when there is a curve to look at', () => {
+    expect(emptyDataWarning(location, 24)).toBe('')
+  })
+
+  test('names the location and where to report when there is not', () => {
+    const message = emptyDataWarning(location, 0)
+    expect(message).toContain('Somewhere Bay')
+    expect(message).toContain('github.com/vinhnguyenthanhdn/tide-flow/issues')
   })
 })

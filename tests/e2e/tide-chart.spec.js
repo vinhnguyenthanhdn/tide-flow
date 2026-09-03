@@ -191,3 +191,35 @@ test.describe('Tide Chart App', () => {
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image')
   })
 })
+
+test.describe('a location that cannot be drawn says so', () => {
+  // Served with the constituent table emptied, which is the shape of the real
+  // failure: the picker still offers everything, `generateHourlyData` is never
+  // reached, and nothing throws. Before this the page just showed a blank curve.
+  test('an empty constituent table produces a message naming the location and where to report', async ({ page }) => {
+    await page.route('**/src/tide-constituents.js', route =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/javascript',
+        body: 'export const TIDAL_CONSTITUENTS = {}\n',
+      }),
+    )
+
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+
+    const warning = page.getByTestId('data-warning')
+    await expect(warning).toBeVisible()
+    // The selected location is interpolated, not a generic "no data" string.
+    await expect(warning).toHaveText(/^No tide curve for .+: its harmonic constituents are missing/)
+    await expect(warning).toContainText('github.com/vinhnguyenthanhdn/tide-flow/issues')
+    // The page still works: the picker and the chart element are there, not a crash.
+    await expect(page.locator('canvas')).toBeVisible()
+  })
+
+  test('a location that can be drawn shows no such message', async ({ page }) => {
+    await page.goto('/')
+    await page.waitForLoadState('networkidle')
+    await expect(page.getByTestId('data-warning')).toBeHidden()
+  })
+})

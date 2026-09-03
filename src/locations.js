@@ -24,3 +24,18 @@ export const LOCATIONS = [
   { id: "singapore-strait", name: "Singapore Strait", country: "Singapore", lat: 1.2200, lon: 103.8500, timeZone: "Asia/Singapore" },
   { id: "auckland", name: "Auckland", country: "New Zealand", lat: -36.8509, lon: 174.7645, timeZone: "Pacific/Auckland" },
 ]
+
+const ISSUE_URL = 'https://github.com/vinhnguyenthanhdn/tide-flow/issues'
+
+/**
+ * What to say when a render produced no curve.
+ *
+ * A location this list offers whose harmonic constituents are missing used to
+ * draw an empty chart and a dash for every statistic — nothing threw, so the
+ * only person who found out was the one looking at a blank curve, and they had
+ * nothing to describe and nowhere to send it. Name the location and the place.
+ */
+export function emptyDataWarning(location, count) {
+  if (count > 0) return ''
+  return `No tide curve for ${location.name}: its harmonic constituents are missing from this build. Please report it at ${ISSUE_URL}`
+}

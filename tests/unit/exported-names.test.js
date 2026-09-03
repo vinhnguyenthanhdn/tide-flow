@@ -79,6 +79,9 @@ describe('exportedNames', () => {
       'toLocalISODate',
     ])
     expect([...exportedNames(read('tide-constituents.js')).names]).toEqual(['TIDAL_CONSTITUENTS'])
-    expect([...exportedNames(read('locations.js')).names]).toEqual(['LOCATIONS'])
+    expect([...exportedNames(read('locations.js')).names].sort()).toEqual([
+      'LOCATIONS',
+      'emptyDataWarning',
+    ])
   })
 })
