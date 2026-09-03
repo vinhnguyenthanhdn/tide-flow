@@ -1,6 +1,6 @@
 // Tide Flow application — Alpine.js global component.
 
-import { LOCATIONS } from './src/locations.js'
+import { LOCATIONS, emptyDataWarning } from './src/locations.js'
 import { TIDAL_CONSTITUENTS } from './src/tide-constituents.js'
 import { generateHourlyData, toLocalISODate } from './src/tide-math.js'
 import Alpine from './assets/vendor/alpine.esm.min.js'
@@ -75,6 +75,7 @@ function tideAppFactory() {
     endDate: null,
     activePreset: 7,
     dateWarning: '',
+    dataWarning: '',
     isChartZoomed: false,
     stats: { max: null, min: null, avg: null, range: null, maxTime: '', minTime: '' },
 
@@ -262,6 +263,7 @@ function tideAppFactory() {
       const e = toLocalISODate(this.endDate)
 
       const data = loadTideData(loc, s, e)
+      this.dataWarning = emptyDataWarning(loc, data.length)
       this.stats = computeStats(data, loc.timeZone)
       _chart.data.labels = data.map(d => d.time.toISOString())
       _chart.data.datasets[0].data = data.map(d => d.height)

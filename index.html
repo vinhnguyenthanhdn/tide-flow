@@ -151,6 +151,15 @@
         </div>
       </div>
 
+      <!-- Nothing to draw: say which location came back empty and where to report it -->
+      <p
+        x-show="dataWarning"
+        data-testid="data-warning"
+        role="alert"
+        class="mb-3 rounded-lg border border-amber-500/40 bg-amber-950/60 px-4 py-3 font-mono text-xs text-amber-200"
+        x-text="dataWarning"
+      ></p>
+
       <!-- Chart Canvas -->
       <div class="chart-scroll rounded-lg" role="region" tabindex="0" aria-label="Scrollable tide chart">
         <div class="chart-stage relative" :style="`--chart-mobile-width: ${chartMinWidth}px`">
